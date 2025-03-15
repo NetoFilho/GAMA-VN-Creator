@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ffffff">
+    <title>Storage - Projeto</title>
+    <style>
+        /* Estilos básicos - Tema branco minimalista */
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #fafafa;
+            overflow-x: hidden;
+            margin-top: 70px;
+            color: #333;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #ffffff;
+            color: #333;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            z-index: 100;
+        }
+
+        header h3 {
+            margin: 0;
+            font-weight: 500;
+        }
+
+        main {
+            padding: 15px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        section {
+            margin-bottom: 25px;
+            background: #ffffff;
+            border-radius: 4px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+
+        section h2 {
+            margin-top: 0;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 12px;
+            padding: 12px;
+            background: #f8f8f8;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        li:hover {
+            background: #f0f0f0;
+        }
+
+        button {
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #e9e9e9;
+        }
+
+        form {
+            margin-top: 15px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 15px;
+        }
+
+        form input,
+        form select,
+        form button {
+            margin: 8px 8px 8px 0;
+            padding: 10px 12px;
+            border: 1px solid #eaeaea;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        form input[type="text"] {
+            width: 250px;
+        }
+
+        form select {
+            width: 150px;
+            background: #ffffff;
+        }
+
+        img {
+            max-width: 100px;
+            border-radius: 3px;
+            display: block;
+            margin-top: 8px;
+            border: 1px solid #f0f0f0;
+        }
+
+        /* Estilo para itens armazenados */
+        .storage-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .storage-item-content {
+            flex: 1;
+        }
+        
+        .storage-item-actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-remove {
+            background: #fafafa;
+            color: #999;
+            border: 1px solid #eaeaea;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .btn-remove:hover {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        /* Destaque para chaves de armazenamento */
+        .storage-key {
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 600px) {
+            form input[type="text"],
+            form select {
+                width: 100%;
+                box-sizing: border-box;
+            }
+            
+            .storage-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .storage-item-actions {
+                margin-top: 10px;
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <!-- Exibe informações do projeto (apenas nome, sem versão) -->
+        <h3 id="projectTitle">Projeto:</h3>
+    </header>
+    <main>
+        <!-- Section: Backgrounds -->
+        <section id="backgroundSection">
+            <h2>Backgrounds</h2>
+            <ul id="backgroundList"></ul>
+            <button id="addBackgroundBtn">Adicionar Background</button>
+            <form id="addBackgroundForm" style="display:none;">
+                <input type="text" id="bgKey" placeholder="Chave do background" required>
+                <input type="file" id="bgFile" accept="image/*" required>
+                <button type="button" id="saveBackgroundBtn">Salvar Background</button>
+                <button type="button" id="cancelBackgroundBtn" class="btn-cancel">Cancelar</button>
+            </form>
+        </section>
+
+        <!-- Section: Variáveis -->
+        <section id="variableSection">
+            <h2>Variáveis</h2>
+            <ul id="variableList"></ul>
+            <button id="addVariableBtn">Adicionar Variável</button>
+            <form id="addVariableForm" style="display:none;">
+                <input type="text" id="varKey" placeholder="Chave da variável" required>
+                <select id="varType">
+                    <option value="string">String</option>
+                    <option value="number">Number</option>
+                    <option value="booleana">Boolean</option>
+                    <option value="arquive">Arquive</option>
+                </select>
+                <div id="varValueContainer"></div>
+                <button type="button" id="saveVariableBtn">Salvar Variável</button>
+                <button type="button" id="cancelVariableBtn" class="btn-cancel">Cancelar</button>
+            </form>
+        </section>
+
+        <!-- Section: Characters -->
+        <section id="characterSection">
+            <h2>Characters</h2>
+            <ul id="characterList"></ul>
+            <button id="addCharacterBtn">Adicionar Character</button>
+            <form id="addCharacterForm" style="display:none;">
+                <input type="text" id="characterKey" placeholder="Chave do character" required>
+                <input type="file" id="characterFile" accept="image/*" required>
+                <button type="button" id="saveCharacterBtn">Salvar Character</button>
+                <button type="button" id="cancelCharacterBtn" class="btn-cancel">Cancelar</button>
+            </form>
+        </section>
+
+        <!-- Section: Músicas -->
+        <section id="musicSection">
+            <h2>Músicas</h2>
+            <ul id="musicList"></ul>
+            <button id="addMusicBtn">Adicionar Música</button>
+            <form id="addMusicForm" style="display:none;">
+                <input type="text" id="musicKey" placeholder="Chave da música" required>
+                <input type="file" id="musicFile" accept="audio/*" required>
+                <button type="button" id="saveMusicBtn">Salvar Música</button>
+                <button type="button" id="cancelMusicBtn" class="btn-cancel">Cancelar</button>
+            </form>
+        </section>
+    </main>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- Recupera parâmetros do projeto via sessionStorage ou da URL ---
+            const urlParams = new URLSearchParams(window.location.search);
+            let selectedProject = sessionStorage.getItem("selectedProject");
+            if (selectedProject) {
+                selectedProject = JSON.parse(selectedProject);
+            }
+            const currentProjectId = selectedProject ? selectedProject.id : urlParams.get('id');
+            const currentProjectName = selectedProject ? selectedProject.name : urlParams.get('name');
+            const currentProjectIcon = selectedProject ? selectedProject.icon : urlParams.get('icon'); // atualmente não utilizado
+
+            // Exibe informações do projeto no header (caso o elemento exista)
+            const projectTitleEl = document.getElementById('projectTitle');
+            if (projectTitleEl) {
+                projectTitleEl.textContent = "Projeto: " + (currentProjectName || "Sem Nome");
+            }
+
+            // --- IndexedDB ---
+            const targetVersion = 3;
+
+            // Função auxiliar para criar os object stores
+            function createStores(db) {
+                if (!db.objectStoreNames.contains('backgrounds')) {
+                    db.createObjectStore('backgrounds', {
+                        keyPath: 'key'
+                    });
+                }
+                if (!db.objectStoreNames.contains('variables')) {
+                    db.createObjectStore('variables', {
+                        keyPath: 'key'
+                    });
+                }
+                if (!db.objectStoreNames.contains('musics')) {
+                    db.createObjectStore('musics', {
+                        keyPath: 'key'
+                    });
+                }
+                if (!db.objectStoreNames.contains('characters')) {
+                    db.createObjectStore('characters', {
+                        keyPath: 'key'
+                    });
+                }
+            }
+
+            function openDatabase() {
+                return new Promise((resolve, reject) => {
+                    if (indexedDB.databases) {
+                        indexedDB.databases().then(dbs => {
+                            const dbInfo = dbs.find(db => db.name === 'ArmazenamentoDB');
+                            let newVersion = targetVersion;
+                            if (dbInfo && dbInfo.version && dbInfo.version >= targetVersion) {
+                                newVersion = dbInfo.version;
+                            }
+                            const request = indexedDB.open('ArmazenamentoDB', newVersion);
+                            request.onupgradeneeded = function(event) {
+                                createStores(event.target.result);
+                            };
+                            request.onsuccess = function(event) {
+                                resolve(event.target.result);
+                            };
+                            request.onerror = function(event) {
+                                reject(event.target.error);
+                            };
+                        }).catch(err => {
+                            console.warn("indexedDB.databases() não disponível, usando versão fixa.");
+                            const request = indexedDB.open('ArmazenamentoDB', targetVersion);
+                            request.onupgradeneeded = function(event) {
+                                createStores(event.target.result);
+                            };
+                            request.onsuccess = function(event) {
+                                resolve(event.target.result);
+                            };
+                            request.onerror = function(event) {
+                                reject(event.target.error);
+                            };
+                        });
+                    } else {
+                        const request = indexedDB.open('ArmazenamentoDB', targetVersion);
+                        request.onupgradeneeded = function(event) {
+                            createStores(event.target.result);
+                        };
+                        request.onsuccess = function(event) {
+                            resolve(event.target.result);
+                        };
+                        request.onerror = function(event) {
+                            reject(event.target.error);
+                        };
+                    }
+                });
+            }
+
+            function saveItem(storeName, item) {
+                // Associa o item ao projeto atual
+                item.projectId = currentProjectId;
+                return openDatabase().then(db => {
+                    return new Promise((resolve, reject) => {
+                        const transaction = db.transaction(storeName, 'readwrite');
+                        const store = transaction.objectStore(storeName);
+                        const request = store.put(item);
+                        request.onsuccess = function() {
+                            resolve();
+                        };
+                        request.onerror = function(e) {
+                            reject(e.target.error);
+                        };
+                    });
+                });
+            }
+
+            function removeItem(storeName, key) {
+                return openDatabase().then(db => {
+                    return new Promise((resolve, reject) => {
+                        const transaction = db.transaction(storeName, 'readwrite');
+                        const store = transaction.objectStore(storeName);
+                        const request = store.delete(key);
+                        request.onsuccess = function() {
+                            resolve();
+                        };
+                        request.onerror = function(e) {
+                            reject(e.target.error);
+                        };
+                    });
+                });
+            }
+
+            function loadAllItems(storeName) {
+                return openDatabase().then(db => {
+                    return new Promise((resolve, reject) => {
+                        const transaction = db.transaction(storeName, 'readonly');
+                        const store = transaction.objectStore(storeName);
+                        const request = store.getAll();
+                        request.onsuccess = function() {
+                            // Filtra somente os itens pertencentes ao projeto atual
+                            const items = request.result.filter(item => item.projectId === currentProjectId);
+                            resolve(items);
+                        };
+                        request.onerror = function(e) {
+                            reject(e.target.error);
+                        };
+                    });
+                });
+            }
+
+            // --- Funções auxiliares para manipulação do DOM ---
+            function getEl(id) {
+                const el = document.getElementById(id);
+                if (!el) {
+                    console.error("Elemento com id '" + id + "' não encontrado.");
+                }
+                return el;
+            }
+
+            function safeAddEvent(id, eventName, handler) {
+                const el = getEl(id);
+                if (el) {
+                    el.addEventListener(eventName, handler);
+                }
+            }
+
+            function resetForm(formId) {
+                const form = getEl(formId);
+                if (!form) return;
+                const inputs = form.querySelectorAll('input:not([type="file"]), textarea, select');
+                inputs.forEach(function(input) {
+                    input.value = '';
+                });
+                const fileInputs = form.querySelectorAll('input[type="file"]');
+                fileInputs.forEach(function(input) {
+                    try {
+                        const newInput = input.cloneNode(true);
+                        if (input.parentNode) {
+                            input.parentNode.replaceChild(newInput, input);
+                        }
+                    } catch (e) {
+                        console.error("Erro ao resetar input file:", e);
+                    }
+                });
+                form.style.display = 'none';
+            }
+
+            // --- Funções de carregamento e exibição ---
+            function loadBackgrounds() {
+                loadAllItems('backgrounds').then(backgrounds => {
+                    const list = getEl('backgroundList');
+                    if (!list) return;
+                    list.innerHTML = '';
+                    backgrounds.forEach(function(bg) {
+                        const li = document.createElement('li');
+                        const keyInput = document.createElement('input');
+                        keyInput.type = 'text';
+                        keyInput.value = bg.key;
+                        keyInput.addEventListener('change', function() {
+                            bg.key = this.value;
+                            saveItem('backgrounds', bg).then(loadBackgrounds);
+                        });
+                        li.appendChild(keyInput);
+                        if (bg.archive) {
+                            const img = document.createElement('img');
+                            img.src = bg.archive;
+                            img.alt = bg.key;
+                            li.appendChild(img);
+                        }
+                        const removeBtn = document.createElement('button');
+                        removeBtn.textContent = "Remover";
+                        removeBtn.addEventListener('click', function() {
+                            removeItem('backgrounds', bg.key).then(loadBackgrounds);
+                        });
+                        li.appendChild(removeBtn);
+                        list.appendChild(li);
+                    });
+                }).catch(e => console.error("Erro ao carregar backgrounds:", e));
+            }
+
+            function loadVariables() {
+                loadAllItems('variables').then(variables => {
+                    const list = getEl('variableList');
+                    if (!list) return;
+                    list.innerHTML = '';
+                    variables.forEach(function(variable) {
+                        const li = document.createElement('li');
+                        const keyInput = document.createElement('input');
+                        keyInput.type = 'text';
+                        keyInput.value = variable.key;
+                        keyInput.addEventListener('change', function() {
+                            variable.key = this.value;
+                            saveItem('variables', variable).then(loadVariables);
+                        });
+                        li.appendChild(keyInput);
+                        const spanType = document.createElement('span');
+                        spanType.textContent = " Tipo: " + variable.type;
+                        li.appendChild(spanType);
+                        if (variable.type === 'arquive' && variable.value) {
+                            if (variable.value.startsWith("data:image")) {
+                                const img = document.createElement('img');
+                                img.src = variable.value;
+                                img.alt = variable.key;
+                                li.appendChild(img);
+                            } else if (variable.value.startsWith("data:video")) {
+                                const video = document.createElement('video');
+                                video.src = variable.value;
+                                video.controls = true;
+                                video.width = 100;
+                                li.appendChild(video);
+                            } else if (variable.value.startsWith("data:audio")) {
+                                const audio = document.createElement('audio');
+                                audio.src = variable.value;
+                                audio.controls = true;
+                                li.appendChild(audio);
+                            } else {
+                                const link = document.createElement('a');
+                                link.href = variable.value;
+                                link.target = '_blank';
+                                link.textContent = 'Visualizar Arquivo';
+                                li.appendChild(link);
+                            }
+                        } else {
+                            const spanValue = document.createElement('span');
+                            spanValue.textContent = " Valor: " + variable.value;
+                            li.appendChild(spanValue);
+                        }
+                        const removeBtn = document.createElement('button');
+                        removeBtn.textContent = "Remover";
+                        removeBtn.addEventListener('click', function() {
+                            removeItem('variables', variable.key).then(loadVariables);
+                        });
+                        li.appendChild(removeBtn);
+                        list.appendChild(li);
+                    });
+                }).catch(e => console.error("Erro ao carregar variáveis:", e));
+            }
+
+            function loadMusic() {
+                loadAllItems('musics').then(musics => {
+                    const list = getEl('musicList');
+                    if (!list) return;
+                    list.innerHTML = '';
+                    musics.forEach(function(music) {
+                        const li = document.createElement('li');
+                        const keyInput = document.createElement('input');
+                        keyInput.type = 'text';
+                        keyInput.value = music.key;
+                        keyInput.addEventListener('change', function() {
+                            music.key = this.value;
+                            saveItem('musics', music).then(loadMusic);
+                        });
+                        li.appendChild(keyInput);
+                        const spanType = document.createElement('span');
+                        spanType.textContent = " Tipo: " + music.type;
+                        li.appendChild(spanType);
+                        if (music.archive) {
+                            const audio = document.createElement('audio');
+                            audio.src = music.archive;
+                            audio.controls = true;
+                            li.appendChild(audio);
+                        }
+                        const removeBtn = document.createElement('button');
+                        removeBtn.textContent = "Remover";
+                        removeBtn.addEventListener('click', function() {
+                            removeItem('musics', music.key).then(loadMusic);
+                        });
+                        li.appendChild(removeBtn);
+                        list.appendChild(li);
+                    });
+                }).catch(e => console.error("Erro ao carregar músicas:", e));
+            }
+
+            function loadCharacters() {
+                loadAllItems('characters').then(characters => {
+                    const list = getEl('characterList');
+                    if (!list) return;
+                    list.innerHTML = '';
+                    characters.forEach(function(character) {
+                        const li = document.createElement('li');
+                        const keyInput = document.createElement('input');
+                        keyInput.type = 'text';
+                        keyInput.value = character.key;
+                        keyInput.addEventListener('change', function() {
+                            character.key = this.value;
+                            saveItem('characters', character).then(loadCharacters);
+                        });
+                        li.appendChild(keyInput);
+                        if (character.archive) {
+                            const img = document.createElement('img');
+                            img.src = character.archive;
+                            img.alt = character.key;
+                            li.appendChild(img);
+                        }
+                        const removeBtn = document.createElement('button');
+                        removeBtn.textContent = "Remover";
+                        removeBtn.addEventListener('click', function() {
+                            removeItem('characters', character.key).then(loadCharacters);
+                        });
+                        li.appendChild(removeBtn);
+                        list.appendChild(li);
+                    });
+                }).catch(e => console.error("Erro ao carregar characters:", e));
+            }
+
+            function updateVarValueInput() {
+                try {
+                    const varTypeEl = getEl('varType');
+                    const container = getEl('varValueContainer');
+                    if (!varTypeEl || !container) return;
+                    const type = varTypeEl.value;
+                    container.innerHTML = '';
+                    if (type === 'string') {
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.id = 'varValue';
+                        input.placeholder = 'Digite o texto';
+                        container.appendChild(input);
+                    } else if (type === 'number') {
+                        const input = document.createElement('input');
+                        input.type = 'number';
+                        input.id = 'varValue';
+                        input.placeholder = 'Digite o número';
+                        container.appendChild(input);
+                    } else if (type === 'booleana') {
+                        const select = document.createElement('select');
+                        select.id = 'varValue';
+                        const optionTrue = document.createElement('option');
+                        optionTrue.value = 'true';
+                        optionTrue.textContent = 'true';
+                        const optionFalse = document.createElement('option');
+                        optionFalse.value = 'false';
+                        optionFalse.textContent = 'false';
+                        select.appendChild(optionTrue);
+                        select.appendChild(optionFalse);
+                        container.appendChild(select);
+                    } else if (type === 'arquive') {
+                        const input = document.createElement('input');
+                        input.type = 'file';
+                        input.id = 'varFile';
+                        input.accept = 'image/*,video/*,audio/*';
+                        container.appendChild(input);
+                    }
+                } catch (e) {
+                    console.error("Erro ao atualizar campo de valor:", e);
+                }
+            }
+
+            // --- Registro de eventos ---
+            safeAddEvent('varType', 'change', updateVarValueInput);
+
+            safeAddEvent('addBackgroundBtn', 'click', function() {
+                const form = getEl('addBackgroundForm');
+                if (form) {
+                    form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+                }
+            });
+            safeAddEvent('addVariableBtn', 'click', function() {
+                const form = getEl('addVariableForm');
+                if (form) {
+                    form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+                    updateVarValueInput();
+                }
+            });
+            safeAddEvent('addMusicBtn', 'click', function() {
+                const form = getEl('addMusicForm');
+                if (form) {
+                    form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+                }
+            });
+            safeAddEvent('addCharacterBtn', 'click', function() {
+                const form = getEl('addCharacterForm');
+                if (form) {
+                    form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+                }
+            });
+
+            // --- Eventos para salvar cada item ---
+            safeAddEvent('saveBackgroundBtn', 'click', function() {
+                try {
+                    const keyEl = getEl('bgKey');
+                    const fileInput = getEl('bgFile');
+                    if (!keyEl || !fileInput) return;
+                    const key = keyEl.value.trim();
+                    if (!key || fileInput.files.length === 0) {
+                        alert("Preencha a key e selecione um arquivo.");
+                        return;
+                    }
+                    const file = fileInput.files[0];
+                    if (!file.type.startsWith('image/')) {
+                        alert("Selecione um arquivo de imagem válido.");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const newBackground = {
+                            key: key,
+                            archive: e.target.result
+                        };
+                        saveItem('backgrounds', newBackground)
+                            .then(() => {
+                                loadBackgrounds();
+                                resetForm('addBackgroundForm');
+                            })
+                            .catch(err => {
+                                console.error("Erro ao salvar background:", err);
+                                alert("Ocorreu um erro ao salvar o background.");
+                            });
+                    };
+                    reader.onerror = function() {
+                        alert("Erro ao ler o arquivo. Tente novamente.");
+                    };
+                    reader.readAsDataURL(file);
+                } catch (err) {
+                    console.error("Erro ao processar o formulário de background:", err);
+                    alert("Ocorreu um erro ao processar o formulário.");
+                }
+            });
+
+            safeAddEvent('saveVariableBtn', 'click', function() {
+                try {
+                    const keyEl = getEl('varKey');
+                    const typeEl = getEl('varType');
+                    if (!keyEl || !typeEl) return;
+                    const key = keyEl.value.trim();
+                    const type = typeEl.value;
+                    let value;
+                    if (!key) {
+                        alert("Preencha a key da variável.");
+                        return;
+                    }
+                    if (type === 'string') {
+                        const valueEl = getEl('varValue');
+                        if (!valueEl) return;
+                        value = valueEl.value;
+                        saveVariable(key, type, value);
+                    } else if (type === 'number') {
+                        const valueEl = getEl('varValue');
+                        if (!valueEl) return;
+                        value = valueEl.value;
+                        const numValue = parseFloat(value);
+                        if (isNaN(numValue)) {
+                            alert("Digite um número válido.");
+                            return;
+                        }
+                        saveVariable(key, type, numValue);
+                    } else if (type === 'booleana') {
+                        const valueEl = getEl('varValue');
+                        if (!valueEl) return;
+                        value = valueEl.value;
+                        saveVariable(key, type, (value === 'true'));
+                    } else if (type === 'arquive') {
+                        const fileInput = getEl('varFile');
+                        if (!fileInput || fileInput.files.length === 0) {
+                            alert("Selecione um arquivo.");
+                            return;
+                        }
+                        const file = fileInput.files[0];
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            value = e.target.result;
+                            saveVariable(key, type, value);
+                        };
+                        reader.onerror = function() {
+                            alert("Erro ao ler o arquivo. Tente novamente.");
+                        };
+                        reader.readAsDataURL(file);
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Erro ao processar o formulário de variável:", err);
+                    alert("Ocorreu um erro ao processar o formulário.");
+                }
+            });
+
+            function saveVariable(key, type, value) {
+                const variable = {
+                    key: key,
+                    type: type,
+                    value: value
+                };
+                saveItem('variables', variable)
+                    .then(() => {
+                        loadVariables();
+                        resetForm('addVariableForm');
+                    })
+                    .catch(err => {
+                        console.error("Erro ao salvar variável:", err);
+                        alert("Ocorreu um erro ao salvar a variável.");
+                    });
+            }
+
+            safeAddEvent('saveMusicBtn', 'click', function() {
+                try {
+                    const keyEl = getEl('musicKey');
+                    const fileInput = getEl('musicFile');
+                    if (!keyEl || !fileInput) return;
+                    const key = keyEl.value.trim();
+                    if (!key || fileInput.files.length === 0) {
+                        alert("Preencha a key e selecione um arquivo.");
+                        return;
+                    }
+                    const file = fileInput.files[0];
+                    if (!file.type.startsWith('audio/')) {
+                        alert("Selecione um arquivo de áudio válido.");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const newMusic = {
+                            key: key,
+                            type: "music",
+                            archive: e.target.result
+                        };
+                        saveItem('musics', newMusic)
+                            .then(() => {
+                                loadMusic();
+                                resetForm('addMusicForm');
+                            })
+                            .catch(err => {
+                                console.error("Erro ao salvar música:", err);
+                                alert("Ocorreu um erro ao salvar a música.");
+                            });
+                    };
+                    reader.onerror = function() {
+                        alert("Erro ao ler o arquivo. Tente novamente.");
+                    };
+                    reader.readAsDataURL(file);
+                } catch (err) {
+                    console.error("Erro ao processar o formulário de música:", err);
+                    alert("Ocorreu um erro ao processar o formulário.");
+                }
+            });
+
+            safeAddEvent('saveCharacterBtn', 'click', function() {
+                try {
+                    const keyEl = getEl('characterKey');
+                    const fileInput = getEl('characterFile');
+                    if (!keyEl || !fileInput) return;
+                    const key = keyEl.value.trim();
+                    if (!key || fileInput.files.length === 0) {
+                        alert("Preencha a key e selecione um arquivo.");
+                        return;
+                    }
+                    const file = fileInput.files[0];
+                    if (!file.type.startsWith('image/')) {
+                        alert("Selecione um arquivo de imagem válido.");
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const newCharacter = {
+                            key: key,
+                            archive: e.target.result
+                        };
+                        saveItem('characters', newCharacter)
+                            .then(() => {
+                                loadCharacters();
+                                resetForm('addCharacterForm');
+                            })
+                            .catch(err => {
+                                console.error("Erro ao salvar character:", err);
+                                alert("Ocorreu um erro ao salvar o character.");
+                            });
+                    };
+                    reader.onerror = function() {
+                        alert("Erro ao ler o arquivo. Tente novamente.");
+                    };
+                    reader.readAsDataURL(file);
+                } catch (err) {
+                    console.error("Erro ao processar o formulário de character:", err);
+                    alert("Ocorreu um erro ao processar o formulário.");
+                }
+            });
+
+            // --- Inicialização dos carregamentos ---
+            updateVarValueInput();
+            loadBackgrounds();
+            loadVariables();
+            loadMusic();
+            loadCharacters();
+        });
+    </script>
+
+</body>
+
+</html>

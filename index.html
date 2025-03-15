@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#fff">
+    <title>Dashboard de Projetos</title>
+    <style>
+        /* Estilos gerais - Tema branco minimalista */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #fafafa;
+            color: #333;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        header {
+            background: #ffffff;
+            color: #333;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5em;
+            font-weight: 500;
+        }
+
+        /* Botão do menu para mobile */
+        .menu-button {
+            background: transparent;
+            border: none;
+            color: #333;
+            font-size: 1.8em;
+            cursor: pointer;
+            display: none;
+        }
+
+        /* Container principal com sidebar e conteúdo */
+        .container {
+            display: flex;
+        }
+
+        /* Sidebar */
+        aside {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 220px;
+            background: #ffffff;
+            color: #333;
+            min-height: 100vh;
+            max-height: 600vh;
+            height: calc(100vh - 60px);
+            padding-top: 20px;
+            box-sizing: border-box;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        aside nav a {
+            display: block;
+            color: #555;
+            text-decoration: none;
+            padding: 12px 25px;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        aside nav a:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        aside nav a.active {
+            border-left: 3px solid #e0e0e0;
+            background: #f8f8f8;
+            color: #000;
+            font-weight: 500;
+        }
+
+        /* Conteúdo principal */
+        main {
+            flex: 1;
+            padding: 25px;
+            background: #fafafa;
+        }
+
+        /* Seções internas */
+        section {}
+
+        section h2 {
+            margin-top: 0;
+            font-weight: 500;
+            color: #333;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Lista de projetos */
+        .project-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .project-item {
+            background: #ffffff;
+            border: 1px solid #f0f0f0;
+            border-radius: 4px;
+            padding: 20px;
+            width: calc(33.333% - 20px);
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .project-item:hover {
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .project-item img {
+            border-radius: 20px;
+            max-width: 50px;
+            max-height: 50px;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .remove-button {
+            background: #fafafa;
+            color: #999;
+            border: none;
+            border-radius: 10px;
+            width: auto;
+            height: 50px;
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .remove-button:hover {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        /* Formulário de adicionar projeto */
+        form input,
+        form button {
+            padding: 12px 15px;
+            margin: 5px 5px 5px 0;
+            border: 1px solid #eaeaea;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+
+        form input[type="text"] {
+            width: 250px;
+        }
+
+        form button {
+            cursor: pointer;
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        form button:hover {
+            background: #e9e9e9;
+        }
+
+        form input[type="file"]::-webkit-file-upload-button {
+            cursor: pointer;
+            background: #f5f5f5;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            height: 40px;
+            border-radius: 4px;
+        }
+
+        /* Estilos para a área de doação */
+        #sectionDoacao .donation-methods {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        #sectionDoacao .donation-option {
+            background: #ffffff;
+            border: 1px solid #eaeaea;
+            border-radius: 4px;
+            padding: 20px;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        #sectionDoacao .donation-option h3 {
+            margin-top: 0;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        #pixKey {
+            background: #eee;
+        }
+
+        #copyButton {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+            height: 40px;
+            margin-top: 4px;
+        }
+
+        /* Responsividade: mobile */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            aside {
+                position: fixed;
+                top: 0;
+                left: -260px;
+                width: 220px;
+                height: 100%;
+                transition: left 0.3s;
+                z-index: 1000;
+                background: #fff;
+                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            }
+
+            aside.open {
+                left: 0;
+            }
+
+            .menu-button {
+                display: block;
+            }
+
+            main {
+                margin-top: 10px;
+                padding: 15px;
+            }
+
+            section {
+                padding: 15px;
+            }
+        }
+
+        /* Responsividade: ajuste de itens na lista */
+        @media (max-width: 768px) {
+            .project-item {
+                width: calc(50% - 20px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .project-item {
+                width: 100%;
+            }
+
+            form input[type="text"] {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Dashboard de Projetos</h1>
+        <button id="menuButton" class="menu-button">☰</button>
+    </header>
+    <div class="container">
+        <!-- Sidebar com navegação -->
+        <aside id="sidebar">
+            <nav>
+                <a href="#" id="linkProjetos" class="active">Projetos</a>
+                <a href="#" id="linkDocumentacao">Documentação</a>
+                <a href="#" id="linkDoacao">Doação</a>
+                <a href="#" id="linkAssets">Assets Store</a>
+            </nav>
+        </aside>
+        <!-- Conteúdo principal -->
+        <main id="mainContent">
+            <!-- Seção de Projetos -->
+            <section id="sectionProjetos">
+                <h2>Projetos</h2>
+                <div class="project-list" id="projectList">
+                    <!-- Lista de projetos inicia vazia -->
+                </div>
+                <h3>Adicionar Projeto</h3>
+                <form id="projectForm">
+                    <input type="file" id="projectIcon" accept="image/*" required>
+                    <input type="text" id="projectName" placeholder="Nome do projeto" required>
+                    <button type="submit">Adicionar Projeto</button>
+                </form>
+            </section>
+            <!-- Seção de Documentação -->
+            <section id="sectionDocumentacao" style="display:none;">
+                <h2>Documentação</h2>
+                <p>Ainda não há documentação disponível.</p>
+            </section>
+            <!-- Seção de Doação -->
+            <section id="sectionDoacao" style="display:none;">
+                <h2>Doação</h2>
+                <div class="donation-methods">
+                    <!-- Opção Pix -->
+                    <div class="donation-option" id="donationPix">
+                        <h3>Doar via Pix</h3>
+                        <p>
+                            Chave Pix: <span id="pixKey">netofilho1314@gmail.com</span>
+                            <button id="copyButton" onclick="copyPixKey()">Copiar</button>
+                        </p>
+                        <p>Ou escaneie o QR Code:</p>
+                        <img src="QRCODE.jpg" alt="QR Code Pix" style="max-width:200px;">
+                    </div>
+                </div>
+            </section>
+            <!-- Seção de Assets Store -->
+            <section id="sectionAssets" style="display:none;">
+                <h2>Assets Store</h2>
+                <p>Loja de Assets. Em breve!</p>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Toggle para navigation drawer no mobile
+        const menuButton = document.getElementById("menuButton");
+        const sidebar = document.getElementById("sidebar");
+        menuButton.addEventListener("click", function() {
+            sidebar.classList.toggle("open");
+        });
+
+        // Fechar o drawer ao clicar em um link (mobile) e mostrar a seção correspondente
+        document.querySelectorAll("aside nav a").forEach(link => {
+            link.addEventListener("click", function() {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove("open");
+                }
+                showSection(this.id.replace("link", "section"));
+            });
+        });
+
+        // Função para exibir a seção selecionada
+        function showSection(sectionId) {
+            document.getElementById("sectionProjetos").style.display = "none";
+            document.getElementById("sectionDocumentacao").style.display = "none";
+            document.getElementById("sectionDoacao").style.display = "none";
+            document.getElementById("sectionAssets").style.display = "none";
+            document.getElementById(sectionId).style.display = "block";
+
+            // Atualiza os links ativos
+            document.querySelectorAll("aside nav a").forEach(link => link.classList.remove("active"));
+            if (sectionId === "sectionProjetos") {
+                document.getElementById("linkProjetos").classList.add("active");
+            } else if (sectionId === "sectionDocumentacao") {
+                document.getElementById("linkDocumentacao").classList.add("active");
+            } else if (sectionId === "sectionDoacao") {
+                document.getElementById("linkDoacao").classList.add("active");
+            } else if (sectionId === "sectionAssets") {
+                document.getElementById("linkAssets").classList.add("active");
+            }
+        }
+
+        // IndexedDB para armazenamento dos projetos
+        let db;
+        const request = indexedDB.open("ProjectDB", 1);
+
+        request.onerror = function(event) {
+            console.error("Erro ao abrir o IndexedDB", event);
+        };
+
+        request.onupgradeneeded = function(event) {
+            db = event.target.result;
+            const objectStore = db.createObjectStore("projects", {
+                keyPath: "id",
+                autoIncrement: true
+            });
+            objectStore.createIndex("name", "name", {
+                unique: false
+            });
+            objectStore.createIndex("icon", "icon", {
+                unique: false
+            });
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            loadProjects();
+        };
+
+        // Carrega os projetos do IndexedDB
+        function loadProjects() {
+            const transaction = db.transaction(["projects"], "readonly");
+            const objectStore = transaction.objectStore("projects");
+            const cursorRequest = objectStore.openCursor();
+            const projectList = document.getElementById("projectList");
+            projectList.innerHTML = "";
+            cursorRequest.onsuccess = function(event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    const project = cursor.value;
+                    const div = document.createElement("div");
+                    div.className = "project-item";
+                    div.innerHTML = `
+            <img src="${project.icon}" alt="Ícone">
+            <h3>${project.name}</h3>
+            <button class="remove-button">Remover</button>
+          `;
+                    // Ao clicar, salva os dados no sessionStorage e redireciona para "engine.html"
+                    div.addEventListener("click", function() {
+                        sessionStorage.setItem("selectedProject", JSON.stringify(project));
+                        window.location.href = "engine.html";
+                    });
+
+                    // Impede que o clique do botão de remoção dispare o evento do div
+                    const removeBtn = div.querySelector(".remove-button");
+                    removeBtn.addEventListener("click", function(event) {
+                        event.stopPropagation();
+                        const transaction = db.transaction(["projects"], "readwrite");
+                        const objectStore = transaction.objectStore("projects");
+                        const deleteRequest = objectStore.delete(project.id);
+                        deleteRequest.onsuccess = function() {
+                            loadProjects();
+                        };
+                        deleteRequest.onerror = function() {
+                            console.error("Erro ao remover projeto");
+                        };
+                    });
+
+                    projectList.appendChild(div);
+                    cursor.continue();
+                }
+            };
+        }
+
+        // Adiciona projeto via formulário utilizando FileReader para o ícone
+        document.getElementById("projectForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById("projectIcon");
+            const file = fileInput.files[0];
+            if (!file) {
+                alert("Selecione um arquivo de imagem para o ícone.");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const iconData = e.target.result;
+                const name = document.getElementById("projectName").value;
+                const newProject = {
+                    icon: iconData,
+                    name
+                };
+                const transaction = db.transaction(["projects"], "readwrite");
+                const objectStore = transaction.objectStore("projects");
+                const addRequest = objectStore.add(newProject);
+                addRequest.onsuccess = function() {
+                    loadProjects();
+                    document.getElementById("projectForm").reset();
+                };
+                addRequest.onerror = function() {
+                    console.error("Erro ao adicionar projeto");
+                };
+            };
+            reader.readAsDataURL(file);
+        });
+
+// Função para copiar a chave Pix para a área de transferência
+function copyPixKey() {
+    const pixKey = document.getElementById('pixKey').innerText;
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        // Usa a API Clipboard se disponível
+        navigator.clipboard.writeText(pixKey)
+            .then(() => {
+                alert('Chave Pix copiada para a área de transferência!');
+            })
+            .catch(err => {
+                alert('Erro ao copiar a chave Pix.');
+            });
+    } else {
+        // Fallback: usa um textarea temporário
+        let textArea = document.createElement("textarea");
+        textArea.value = pixKey;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            alert('Chave Pix copiada para a área de transferência!');
+        } catch (err) {
+            alert('Erro ao copiar a chave Pix.');
+        }
+        document.body.removeChild(textArea);
+    }
+}
+    </script>
+</body>
+
+</html>

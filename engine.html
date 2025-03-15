@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff">
+    <title>Editor</title>
+    <style>
+        /* Reset e estilos base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #fff;
+            padding-top: 30px;
+        }
+
+        #addSceneBtn {
+            position: fixed;
+            bottom: 1%;
+            right: 1%;
+            border-radius: 50px;
+            width: 60px;
+            height: 60px;
+            font-size: 1.5rem;
+        }
+
+        /* App Bar (apenas mobile) */
+        #appBar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: #ffffff;
+            color: #333;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1100;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        #drawerToggle {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Drawer - mobile: overlay; desktop: ficará à esquerda */
+        .drawer {
+            position: fixed;
+            top: 20px;
+            right: -100%;
+            width: 80%;
+            max-width: 300px;
+            height: 100%;
+            background: #f1f1f1;
+            transition: right 0.3s ease;
+            z-index: 1050;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+            padding: 0;
+        }
+
+        .drawer.open {
+            right: 0;
+        }
+
+        .drawer-content {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        .close-drawer {
+            align-self: flex-end;
+            margin-bottom: 10px;
+        }
+
+        /* Preview da Visual Novel com Aspect Ratio 16:9 */
+        #previewArea {
+            position: sticky;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            max-width: 800px;
+            aspect-ratio: 16/9;
+            margin: 20px auto;
+            overflow: hidden;
+            border: 2px solid #000;
+            cursor: pointer;
+            background: #000;
+        }
+
+        #bgLayer,
+        #characterArea {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #bgLayer {
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+
+        #characterArea img {
+            position: absolute;
+            max-width: 300px;
+            height: auto;
+            z-index: 5;
+        }
+
+        #dialogueBox,
+        #choicesContainer {
+            position: absolute;
+            left: 0;
+            right: 0;
+            z-index: 2;
+        }
+
+        #dialogueBox {
+            bottom: 0;
+            height: 80px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            font-size: 18px;
+            display: none;
+            z-index: 2;
+        }
+
+#choicesContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    z-index: 4;
+}
+
+        #choicesContainer button,
+        #sceneList button {
+            background: rgba(0, 0, 0, 0.6);
+            border: none;
+            padding: 10px 20px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        #bgMusic {
+            display: none;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        li {
+            background: #fff;
+        }
+
+        /* Lista de Cenas */
+        #sceneList {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: transparent;
+            padding: 10px;
+        }
+
+        .sceneItem {
+            border: 1px solid #ccc;
+            padding: 5px;
+            margin-bottom: 5px;
+        }
+
+        .sceneItem input[type="text"],
+        .sceneItem input[type="number"] {
+            margin-right: 5px;
+            padding: 3px;
+            width: 100px;
+        }
+
+        .assetDetails {
+            display: none;
+            margin-top: 5px;
+            color: black;
+            padding: 5px;
+        }
+
+        .assetDetails h4 {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .assetDetails li {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            padding: 2px 0;
+        }
+
+        /* Modal para Assets - Estilizado */
+        #modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1060;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #modalContent {
+            background: #fff;
+            color: #000;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Itens na lista de assets */
+        #assetsUl li {
+            padding: 8px;
+            margin: 3px;
+            border-bottom: 1px solid #ccc;
+            background: #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            gap: 10px;
+        }
+
+        #assetTypeSelect {
+            border: 1px solid #ccc;
+            height: 30px;
+        }
+
+        #closeModalBtn {
+            width: 100%;
+            border: 1px solid #ccc;
+            height: 30px;
+        }
+
+        #assetsUl li:hover {
+            background: #f0f0f0;
+        }
+
+        /* Layout para Desktop */
+        @media (min-width: 768px) {
+            body {
+                display: flex;
+                flex-direction: row;
+                height: 100vh;
+                overflow: hidden;
+                padding: 0;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            #appBar {
+                display: none;
+            }
+
+            .drawer {
+                position: relative;
+                top: 0;
+                right: 0;
+                width: 300px;
+                height: 100%;
+                box-shadow: none;
+                padding: 0;
+                flex-shrink: 0;
+            }
+
+            .close-drawer {
+                display: none;
+            }
+
+            #previewArea {
+                flex: 1;
+                margin: 20px;
+                max-width: 800px;
+                align-self: center;
+            }
+
+            #sceneList {
+                width: 300px;
+                height: 100vh;
+                margin: 0;
+                overflow-y: auto;
+                flex-shrink: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- App Bar (mobile) -->
+    <div id="appBar">
+        <button id="drawerToggle" aria-label="Abrir Armazenamento">&#9776;</button>
+        <h1 style="margin-left: 10px; font-size: 18px;">Editor</h1>
+    </div>
+    <!-- Drawer com iframe -->
+    <div id="drawer" class="drawer">
+        <div class="drawer-content">
+            <button id="closeDrawer" class="close-drawer">Fechar</button>
+            <iframe id="storageIframe" src="" frameborder="0" style="width:100%; height:100%;"></iframe>
+        </div>
+    </div>
+    <!-- Preview da Visual Novel -->
+    <div id="previewArea">
+        <div id="bgLayer"></div>
+        <div id="characterArea"></div>
+        <div id="dialogueBox">
+            <div class="characterName"></div>
+            <div class="dialogueText"></div>
+        </div>
+        <div id="choicesContainer"></div>
+        <audio id="bgMusic" autoplay loop></audio>
+    </div>
+    <!-- Lista de Scenes -->
+    <div id="sceneList">
+        <button id="addSceneBtn">+</button>
+        <ul id="scenesUl"></ul>
+    </div>
+    <!-- Modal para adicionar assets -->
+    <div id="modal">
+        <div id="modalContent">
+            <h3>Adicionar Asset à Cena</h3>
+            <label for="assetTypeSelect">Tipo de Asset:</label>
+            <select id="assetTypeSelect">
+                <option value="backgrounds">Background</option>
+                <option value="characters">Character</option>
+                <option value="musics">Music</option>
+                <option value="variables">Variable</option>
+                <option value="dialogues">Dialogue (Narrador)</option>
+                <option value="choices">Choice</option>
+            </select>
+            <ul id="assetsUl"></ul>
+
+            <button id="closeModalBtn">Fechar</button>
+        </div </div>
+        <script>
+            (function() {
+                const targetVersion = 3;
+                const stores = ['backgrounds', 'variables', 'characters', 'musics', 'scenes'];
+
+                // Cria as _object stores_ necessárias
+                function createStores(db) {
+                    stores.forEach(store => {
+                        if (!db.objectStoreNames.contains(store)) {
+                            db.createObjectStore(store, {
+                                keyPath: (store === 'scenes' ? 'id' : 'key'),
+                                autoIncrement: (store === 'scenes')
+                            });
+                        }
+                    });
+                }
+
+                // Abre o IndexedDB com fallback
+                function openDatabase() {
+                    return new Promise((resolve, reject) => {
+                        if (indexedDB.databases) {
+                            indexedDB.databases().then(dbs => {
+                                const dbInfo = dbs.find(db => db.name === 'ArmazenamentoDB');
+                                const version = dbInfo && dbInfo.version && dbInfo.version >= targetVersion ? dbInfo.version : targetVersion;
+                                const req = indexedDB.open('ArmazenamentoDB', version);
+                                req.onupgradeneeded = e => createStores(e.target.result);
+                                req.onsuccess = e => resolve(e.target.result);
+                                req.onerror = e => reject(e.target.error);
+                            }).catch(() => {
+                                const req = indexedDB.open('ArmazenamentoDB', targetVersion);
+                                req.onupgradeneeded = e => createStores(e.target.result);
+                                req.onsuccess = e => resolve(e.target.result);
+                                req.onerror = e => reject(e.target.error);
+                            });
+                        } else {
+                            const req = indexedDB.open('ArmazenamentoDB', targetVersion);
+                            req.onupgradeneeded = e => createStores(e.target.result);
+                            req.onsuccess = e => resolve(e.target.result);
+                            req.onerror = e => reject(e.target.error);
+                        }
+                    });
+                }
+
+                function saveItem(storeName, item) {
+                    return openDatabase().then(db => new Promise((resolve, reject) => {
+                        const tx = db.transaction(storeName, 'readwrite');
+                        const store = tx.objectStore(storeName);
+                        const req = store.put(item);
+                        req.onsuccess = () => resolve();
+                        req.onerror = e => reject(e.target.error);
+                    }));
+                }
+
+                function removeItem(storeName, key) {
+                    return openDatabase().then(db => new Promise((resolve, reject) => {
+                        const tx = db.transaction(storeName, 'readwrite');
+                        const store = tx.objectStore(storeName);
+                        const req = store.delete(key);
+                        req.onsuccess = () => resolve();
+                        req.onerror = e => reject(e.target.error);
+                    }));
+                }
+
+                function loadAllItems(storeName) {
+                    return openDatabase().then(db => new Promise((resolve, reject) => {
+                        const tx = db.transaction(storeName, 'readonly');
+                        const store = tx.objectStore(storeName);
+                        const req = store.getAll();
+                        req.onsuccess = () => resolve(req.result);
+                        req.onerror = e => reject(e.target.error);
+                    }));
+                }
+
+                function getEl(id) {
+                    return document.getElementById(id);
+                }
+
+                function safeAddEvent(id, event, handler) {
+                    const el = getEl(id);
+                    if (el) el.addEventListener(event, handler);
+                }
+
+                // Substituição de variáveis com a sintaxe {chave}
+                function parseVariables(text, variables) {
+                    return text ? text.replace(/{([^}]+)}/g, (m, key) => {
+                        const v = variables.find(v => v.key === key);
+                        return v ? v.value : m;
+                    }) : "";
+                }
+                const parseDialogue = parseVariables;
+
+                let currentScene = null;
+                let scenesArray = [];
+                const currentProjectId = (function() {
+                    let sp = sessionStorage.getItem("selectedProject");
+                    sp = sp ? JSON.parse(sp) : null;
+                    return sp ? sp.id : (new URLSearchParams(window.location.search)).get("id");
+                })();
+
+                function loadScenes() {
+                    loadAllItems('scenes').then(scenes => {
+                        scenes = scenes.filter(scene => scene.projectId === currentProjectId);
+                        scenesArray = scenes;
+                        renderSceneList(scenes);
+                        if (!currentScene && scenes.length) {
+                            currentScene = scenes[0];
+                            renderPreview(currentScene);
+                        }
+                    }).catch(console.error);
+                }
+
+                function renderSceneList(scenes) {
+                    const ul = getEl('scenesUl');
+                    ul.innerHTML = '';
+                    scenes.forEach(scene => {
+                        const li = document.createElement('li');
+                        li.className = 'sceneItem';
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.value = scene.sceneKey || '';
+                        input.placeholder = 'Nome da Cena';
+                        input.addEventListener('change', function() {
+                            scene.sceneKey = this.value;
+                            saveItem('scenes', scene).then(loadScenes);
+                        });
+                        li.appendChild(input);
+                        const addAssetBtn = document.createElement('button');
+                        addAssetBtn.textContent = '+';
+                        addAssetBtn.addEventListener('click', e => {
+                            e.stopPropagation();
+                            currentScene = scene;
+                            showAssetModal();
+                        });
+                        li.appendChild(addAssetBtn);
+                        const expandBtn = document.createElement('button');
+                        expandBtn.textContent = 'Expandir';
+                        expandBtn.addEventListener('click', e => {
+                            e.stopPropagation();
+                            const detailsDiv = li.querySelector('.assetDetails');
+                            detailsDiv.style.display = (detailsDiv.style.display === 'none' || detailsDiv.style.display === '') ? 'block' : 'none';
+                            if (detailsDiv.style.display === 'block') renderAssetDetails(detailsDiv, scene);
+                        });
+                        li.appendChild(expandBtn);
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.textContent = 'Delete';
+                        deleteBtn.addEventListener('click', e => {
+                            e.stopPropagation();
+                            removeItem('scenes', scene.id).then(loadScenes);
+                        });
+                        li.appendChild(deleteBtn);
+                        const detailsDiv = document.createElement('div');
+                        detailsDiv.className = 'assetDetails';
+                        li.appendChild(detailsDiv);
+                        li.addEventListener('click', () => {
+                            currentScene = scene;
+                            renderPreview(scene);
+                        });
+                        ul.appendChild(li);
+                    });
+                }
+
+                function renderAssetDetails(detailsDiv, scene) {
+                    detailsDiv.innerHTML = '';
+                    const assetTypes = ['backgrounds', 'characters', 'musics', 'variables', 'dialogues', 'choices'];
+                    assetTypes.forEach(type => {
+                        const header = document.createElement('h4');
+                        header.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+                        detailsDiv.appendChild(header);
+                        const list = document.createElement('ul');
+                        if (scene[type] && scene[type].length) {
+                            scene[type].forEach((item, index) => {
+                                const li = document.createElement('li');
+                                let allowedProps = [];
+                                switch (type) {
+                                    case "backgrounds":
+                                        allowedProps = ["key", "archive", "opacity"];
+                                        break;
+                                    case "characters":
+                                        allowedProps = ["key", "archive", "posX", "posY", "scale"];
+                                        break;
+                                    case "variables":
+                                        allowedProps = ["key"];
+                                        if (item.type !== "arquive") allowedProps.push("value");
+                                        break;
+                                    case "musics":
+                                        allowedProps = ["key", "archive", "loop", "volume"];
+                                        break;
+                                    default:
+                                        allowedProps = Object.keys(item).filter(prop => prop !== "id" && prop !== "projectId");
+                                        break;
+                                }
+                                if (type !== "variables" && !allowedProps.includes("zIndex")) allowedProps.push("zIndex");
+                                allowedProps.forEach(prop => {
+                                    const input = document.createElement('input');
+                                    input.type = 'text';
+                                    input.value = item[prop] !== undefined ? item[prop] : '';
+                                    input.placeholder = prop + ' (use {chave} para variáveis)';
+                                    input.addEventListener('change', function() {
+                                        item[prop] = this.value;
+                                        saveItem('scenes', scene).then(loadScenes);
+                                    });
+                                    li.appendChild(input);
+                                });
+                                const delBtn = document.createElement('button');
+                                delBtn.textContent = 'X';
+                                delBtn.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    scene[type].splice(index, 1);
+                                    saveItem('scenes', scene).then(loadScenes);
+                                });
+                                li.appendChild(delBtn);
+                                list.appendChild(li);
+                            });
+                        } else {
+                            const li = document.createElement('li');
+                            li.textContent = 'Nenhum';
+                            list.appendChild(li);
+                        }
+                        detailsDiv.appendChild(list);
+                    });
+                }
+
+                function renderPreview(scene) {
+                    const bgLayer = getEl('bgLayer');
+                    if (scene.backgrounds && scene.backgrounds.length) {
+                        const bg = scene.backgrounds[0];
+                        const archiveUrl = typeof bg.archive === "string" ? parseVariables(bg.archive, scene.variables) : bg.archive;
+                        bgLayer.style.backgroundImage = `url(${archiveUrl})`;
+                        bgLayer.style.opacity = bg.opacity || 1;
+                        bgLayer.style.zIndex = bg.zIndex !== undefined ? bg.zIndex : 1;
+                    } else {
+                        bgLayer.style.backgroundImage = 'none';
+                    }
+                    const characterArea = getEl('characterArea');
+                    characterArea.innerHTML = '';
+                    if (scene.characters && scene.characters.length) {
+                        scene.characters.forEach(char => {
+                            if (char.archive) {
+                                const img = document.createElement('img');
+                                img.src = typeof char.archive === "string" ? parseVariables(char.archive, scene.variables) : char.archive;
+                                img.alt = char.key || "Personagem";
+                                const offsetX = char.posX !== undefined ? char.posX : 0;
+                                const offsetY = char.posY !== undefined ? char.posY : 0;
+                                img.style.left = `calc(50% + ${offsetX}px)`;
+                                img.style.top = `calc(50% - ${offsetY}px)`;
+                                img.style.transform = `translate(-50%, -50%) scale(${char.scale || 1})`;
+                                img.style.zIndex = char.zIndex !== undefined ? char.zIndex : 5;
+                                characterArea.appendChild(img);
+                            }
+                        });
+                    }
+                    const dialogueBox = getEl('dialogueBox');
+                    let dialogueText = "",
+                        dialogueName = "",
+                        found = false;
+                    if (scene.characters && scene.characters.length) {
+                        for (let char of scene.characters) {
+                            if (char.dialogueText) {
+                                dialogueName = char.key;
+                                dialogueText = parseDialogue(char.dialogueText, scene.variables);
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!found && scene.dialogues && scene.dialogues.length) {
+                        dialogueName = "Narrador";
+                        dialogueText = parseDialogue(scene.dialogues[0].text, scene.variables);
+                        found = true;
+                    }
+                    dialogueBox.style.display = found ? 'block' : 'none';
+                    if (found) {
+                        dialogueBox.querySelector('.characterName').innerText = dialogueName;
+                        dialogueBox.querySelector('.dialogueText').innerText = dialogueText;
+                    }
+                    const choicesContainer = getEl('choicesContainer');
+                    choicesContainer.innerHTML = '';
+                    if (scene.choices && scene.choices.length) {
+                        choicesContainer.style.display = 'flex';
+                        scene.choices.forEach(choice => {
+                            const btn = document.createElement('button');
+                            btn.textContent = choice.name;
+                            btn.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                const targetScene = scenesArray.find(s => s.sceneKey === choice.target);
+                                if (targetScene) {
+                                    currentScene = targetScene;
+                                    renderPreview(targetScene);
+                                } else {
+                                    alert("Cena destino não encontrada: " + choice.target);
+                                }
+                            });
+                            choicesContainer.appendChild(btn);
+                        });
+                    } else {
+                        choicesContainer.style.display = 'none';
+                    }
+                    const bgMusic = getEl('bgMusic');
+                    if (scene.musics && scene.musics.length) {
+                        const music = scene.musics[0];
+                        const musicArchive = typeof music.archive === "string" ? parseVariables(music.archive, scene.variables) : music.archive;
+                        bgMusic.src = musicArchive;
+                        bgMusic.loop = music.loop || false;
+                        bgMusic.volume = (music.volume || 100) / 100;
+                        bgMusic.play();
+                    } else {
+                        bgMusic.pause();
+                        bgMusic.src = '';
+                    }
+                }
+
+                safeAddEvent('previewArea', 'click', function() {
+                    if (currentScene && currentScene.choices && currentScene.choices.length) return;
+                    if (scenesArray.length && currentScene) {
+                        const currentIndex = scenesArray.findIndex(s => s.id === currentScene.id);
+                        const nextIndex = (currentIndex + 1) % scenesArray.length;
+                        currentScene = scenesArray[nextIndex];
+                        renderPreview(currentScene);
+                    }
+                });
+
+                function showAssetModal() {
+                    getEl('modal').style.display = 'flex';
+                    getEl('assetTypeSelect').value = 'backgrounds';
+                    loadAssets(getEl('assetTypeSelect').value);
+                }
+
+                safeAddEvent('assetTypeSelect', 'change', function() {
+                    loadAssets(this.value);
+                });
+
+                function loadAssets(storeName) {
+                    if (storeName === 'dialogues' || storeName === 'choices') {
+                        const assetData = storeName === 'dialogues' ? {
+                            key: "Narrador",
+                            text: "Novo diálogo"
+                        } : {
+                            name: "Nova escolha",
+                            target: ""
+                        };
+                        if (!currentScene[storeName]) currentScene[storeName] = [];
+                        currentScene[storeName].push(assetData);
+                        saveItem('scenes', currentScene).then(() => {
+                            loadScenes();
+                            renderPreview(currentScene);
+                        });
+                        closeModal();
+                        return;
+                    }
+                    const assetsUl = getEl('assetsUl');
+                    assetsUl.innerHTML = '';
+                    loadAllItems(storeName).then(assets => {
+                        assets = assets.filter(asset => asset.projectId === currentProjectId);
+                        if (!assets.length) {
+                            assetsUl.innerHTML = '<li>Nenhum item cadastrado.</li>';
+                        } else {
+                            assets.forEach(asset => {
+                                const li = document.createElement('li');
+                                li.textContent = asset.key;
+                                const thumbSrc = (storeName === 'backgrounds' ||
+                                        (storeName === 'characters' && asset.archive) ||
+                                        (storeName === 'variables' && asset.type === 'arquive' && asset.value.startsWith("data:image"))) ?
+                                    (asset.archive || asset.value || (asset.images && asset.images[0])) : null;
+                                if (thumbSrc) {
+                                    const thumb = document.createElement('img');
+                                    thumb.src = thumbSrc;
+                                    thumb.style.width = '50px';
+                                    thumb.style.marginRight = '5px';
+                                    li.insertBefore(thumb, li.firstChild);
+                                }
+                                li.addEventListener('click', function() {
+                                    if (!currentScene[storeName]) currentScene[storeName] = [];
+                                    const commonData = {
+                                        key: asset.key,
+                                        value: asset.value
+                                    };
+                                    const assetData = storeName === 'backgrounds' ? {
+                                            ...commonData,
+                                            archive: asset.archive,
+                                            opacity: 1
+                                        } :
+                                        storeName === 'characters' ? {
+                                            ...commonData,
+                                            archive: asset.archive || (asset.images && asset.images[0])
+                                        } :
+                                        storeName === 'musics' ? {
+                                            ...commonData,
+                                            archive: asset.archive,
+                                            loop: false,
+                                            volume: 100
+                                        } : {
+                                            ...commonData,
+                                            archive: (asset.type === 'arquive' && asset.value && asset.value.startsWith("data:image")) ? asset.value : null
+                                        };
+                                    currentScene[storeName].push(assetData);
+                                    saveItem('scenes', currentScene).then(() => {
+                                        loadScenes();
+                                        renderPreview(currentScene);
+                                    });
+                                    closeModal();
+                                });
+                                assetsUl.appendChild(li);
+                            });
+                        }
+                    }).catch(e => console.error("Erro ao carregar " + storeName + ":", e));
+                }
+
+                function closeModal() {
+                    getEl('modal').style.display = 'none';
+                }
+
+                safeAddEvent('closeModalBtn', 'click', closeModal);
+                safeAddEvent('modal', 'click', function(e) {
+                    if (e.target === this) closeModal();
+                });
+
+                safeAddEvent('addSceneBtn', 'click', function() {
+                    const newScene = {
+                        projectId: currentProjectId,
+                        sceneKey: 'Nova Cena',
+                        backgrounds: [],
+                        characters: [],
+                        musics: [],
+                        variables: [],
+                        dialogues: [],
+                        choices: []
+                    };
+                    saveItem('scenes', newScene).then(loadScenes);
+                });
+
+                document.addEventListener('DOMContentLoaded', function() {
+                    let selectedProject = sessionStorage.getItem("selectedProject");
+                    if (selectedProject) selectedProject = JSON.parse(selectedProject);
+                    const currentId = selectedProject ? selectedProject.id : (new URLSearchParams(window.location.search)).get("id");
+                    getEl('storageIframe').src = "storage.html?id=" + encodeURIComponent(currentId);
+
+                    safeAddEvent('drawerToggle', 'click', () => getEl('drawer').classList.toggle("open"));
+                    safeAddEvent('closeDrawer', 'click', () => getEl('drawer').classList.remove("open"));
+
+                    loadScenes();
+                });
+            })();
+        </script>
+</body>
+
+</html>
