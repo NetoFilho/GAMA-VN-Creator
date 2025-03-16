@@ -2,12 +2,42 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#ffffff">
-    <title>Editor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#202124">
+    <title>Editor de Visual Novel</title>
     <style>
-        /* Reset e estilos base */
+        :root {
+            /* Sistema de cores */
+            --color-primary: #4285f4;
+            --color-secondary: #34a853;
+            --color-accent: #ea4335;
+            --color-dark: #202124;
+            --color-surface: #303134;
+            --color-surface-light: #3c4043;
+            --color-text: #e8eaed;
+            --color-text-secondary: #9aa0a6;
+
+            /* Efeitos */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+            --radius-sm: 4px;
+            --radius-md: 8px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+
+            /* Espaçamento */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+
+            /* Transições */
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -16,94 +46,125 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            color: #fff;
-            padding-top: 10px;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--color-dark);
+            color: var(--color-text);
+            display: grid;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            grid-template-columns: 1fr 300px;
+            grid-template-rows: 50px 1fr;
+            grid-template-areas:
+                "header header"
+                "preview editor";
         }
 
-        #addSceneBtn {
-            position: fixed;
-            bottom: 1%;
-            right: 1%;
-            border-radius: 50px;
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-        }
-
-        /* App Bar (apenas mobile) */
-        #appBar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            background: #ffffff;
-            color: #333;
+        /* Header */
+        .app-header {
+            grid-area: header;
+            background: var(--color-surface);
             display: flex;
             align-items: center;
-            padding: 0 20px;
-            z-index: 1100;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            justify-content: space-between;
+            padding: 0 var(--space-md);
+            box-shadow: var(--shadow-sm);
+            z-index: 10;
         }
 
-        #drawerToggle {
-            background: none;
+        .app-title {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        /* Botões e controles */
+        .btn,
+        .btn-icon,
+        .btn-primary,
+        .btn-floating {
             border: none;
-            color: inherit;
-            font-size: 24px;
             cursor: pointer;
+            transition: background var(--transition-fast);
         }
 
-        /* Drawer - mobile: overlay; desktop: ficará à esquerda */
-        .drawer {
-            position: fixed;
-            top: 20px;
-            right: -100%;
-            width: 80%;
-            max-width: 300px;
-            height: 100%;
-            background: #f1f1f1;
-            transition: right 0.3s ease;
-            z-index: 1050;
-            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
-            padding: 0;
+        .btn {
+            background: var(--color-surface-light);
+            color: var(--color-text);
+            padding: var(--space-xs) var(--space-md);
+            border-radius: var(--radius-sm);
+            font-size: 0.9rem;
         }
 
-        .drawer.open {
-            right: 0;
+        .btn:hover,
+        .btn-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        .drawer-content {
-            height: 100%;
+        .btn-icon {
+            width: 36px;
+            height: 36px;
             display: flex;
-            flex-direction: column;
-            padding: 0;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: transparent;
+            color: var(--color-text);
         }
 
-        .close-drawer {
-            align-self: flex-end;
-            margin-bottom: 10px;
+        .btn-primary {
+            background: var(--color-primary);
         }
 
-        /* Preview da Visual Novel com Aspect Ratio 16:9 */
-        #previewArea {
-            position: sticky;
-            top: 50px;
-            left: 0;
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .btn-floating {
+            position: fixed;
+            bottom: var(--space-lg);
+            right: var(--space-lg);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            color: #fff;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+            z-index: 100;
+            transition: transform var(--transition-fast);
+        }
+
+        .btn-floating:hover {
+            transform: scale(1.05);
+        }
+
+        /* Área de Preview */
+        .preview-container {
+            grid-area: preview;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: var(--space-md);
+            overflow: hidden;
+        }
+
+        .novel-preview {
             width: 100%;
             max-width: 800px;
             aspect-ratio: 16/9;
-            margin: 20px auto;
-            overflow: hidden;
-            border: 2px solid #000;
-            cursor: pointer;
             background: #000;
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
         }
 
-        #bgLayer,
-        #characterArea {
+        .bg-layer,
+        .char-layer {
             position: absolute;
             top: 0;
             left: 0;
@@ -111,729 +172,1048 @@
             height: 100%;
         }
 
-        #bgLayer {
+        .bg-layer {
             background-size: cover;
             background-position: center;
             z-index: 1;
         }
 
-        #characterArea img {
+        .char-layer img {
             position: absolute;
             max-width: 300px;
             height: auto;
             z-index: 5;
         }
 
-        #dialogueBox,
-        #choicesContainer {
+        .dialogue-box {
             position: absolute;
+            bottom: 0;
             left: 0;
             right: 0;
-            z-index: 2;
-        }
-
-        #dialogueBox {
-            bottom: 0;
-            height: 80px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            font-size: 18px;
+            min-height: 80px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: var(--space-md);
+            z-index: 10;
             display: none;
-            z-index: 2;
         }
 
-        #choicesContainer {
+        .character-name {
+            color: var(--color-primary);
+            font-weight: bold;
+            margin-bottom: var(--space-xs);
+        }
+
+        .dialogue-text {
+            line-height: 1.4;
+        }
+
+        .choices-container {
             position: absolute;
             top: 50%;
-            left: 50%;
-            width: 100%;
-            transform: translate(-50%, -50%);
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
-            z-index: 4;
+            gap: var(--space-md);
+            z-index: 20;
         }
 
-        #choicesContainer button,
-        #sceneList button {
-            background: rgba(0, 0, 0, 0.6);
-            border: none;
-            padding: 10px 20px;
+        .choice-btn {
+            background: rgba(0, 0, 0, 0.8);
             color: #fff;
+            border: 1px solid var(--color-primary);
+            border-radius: var(--radius-md);
+            padding: var(--space-md) var(--space-lg);
+            min-width: 200px;
             cursor: pointer;
+            transition: background var(--transition-fast);
         }
 
-        #bgMusic {
+        .choice-btn:hover {
+            background: var(--color-primary);
+        }
+
+        /* Editor Panel */
+        .editor-panel {
+            grid-area: editor;
+            background: var(--color-surface);
+            border-left: 1px solid var(--color-surface-light);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: var(--space-sm);
+        }
+
+        /* Lista de Propriedades – Ajustada para evitar efeitos de clique */
+        .scene-list {
+            list-style: none;
+            overflow-y: auto;
+            flex: 1;
+            margin: 0;
+            padding: 0;
+        }
+
+        .scene-item {
+            border-bottom: 1px solid var(--color-surface-light);
+            padding: var(--space-sm);
+            background: var(--color-surface);
+            /* Efeito de clique removido: sem transition nem hover */
+        }
+
+        .scene-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .scene-name {
+            flex: 1;
+            padding: var(--space-xs);
+            background: transparent;
+            border: 1px solid var(--color-surface-light);
+            border-radius: var(--radius-sm);
+            color: var(--color-text);
+        }
+
+        .scene-name:focus {
+            border-color: var(--color-primary);
+            outline: none;
+        }
+
+        /* Seção de Propriedades (detalhes de assets) */
+        .asset-details {
+            margin-top: var(--space-md);
             display: none;
         }
 
-        ul {
-            list-style-type: none;
+        .asset-section {
+            margin-bottom: var(--space-sm);
         }
 
-        li {
-            background: #fff;
+        .asset-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--space-xs);
         }
 
-        /* Lista de Cenas */
-        #sceneList {
-            width: 100%;
-            max-width: 800px;
-            background: white;
+        .asset-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+            list-style: none;
+            margin: 0;
+            padding: 0;
         }
 
-        #sceneList Button {
-            font-size: 0.8rem;
-            padding: 10px;
-            margin-left: 10px;
-            border-radius: 10px;
-            background: #ccc;
-            color: black;
-        }
-
-        .sceneItem {
-            border: 1px solid #ccc;
-            padding: 5px;
-            margin-bottom: 5px;
-        }
-
-        .sceneItem input[type="text"],
-        .sceneItem input[type="number"] {
-            margin-right: 5px;
-            padding: 3px;
-            width: 100px;
-        }
-
-        .assetDetails {
-            display: none;
-            margin-top: 5px;
-            color: black;
-            padding: 5px;
-        }
-
-        .assetDetails h4 {
-            margin: 5px 0;
-            font-size: 16px;
-        }
-
-        .assetDetails li {
+        .asset-item {
+            background: var(--color-surface-light);
+            border-radius: var(--radius-sm);
+            padding: var(--space-xs);
             display: flex;
             flex-wrap: wrap;
-            align-items: center;
-            gap: 5px;
-            padding: 2px 0;
+            gap: var(--space-xs);
+            /* Efeito de clique removido */
         }
 
-        /* Modal para Assets - Estilizado */
-        #modal {
-            display: none;
+        .asset-field {
+            flex: 1;
+            min-width: 100px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            padding: var(--space-xs);
+            color: var(--color-text);
+            font-size: 0.85rem;
+        }
+
+        /* Drawer e Modal */
+        .drawer {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            background: var(--color-surface);
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
+            transition: left var(--transition-normal);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .drawer.open {
+            left: 0;
+        }
+
+        .drawer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--color-surface-light);
+        }
+
+        .drawer-content {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1060;
-            display: flex;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
             align-items: center;
             justify-content: center;
+            z-index: 1100;
+            animation: fadeIn 0.2s ease;
         }
 
-        #modalContent {
-            background: #fff;
-            color: #000;
+        .modal-content {
+            background: var(--color-surface);
             width: 90%;
-            max-width: 500px;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 0.3s ease;
+            max-width: 480px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+
+        .modal-header {
+            padding: var(--space-md);
+            border-bottom: 1px solid var(--color-surface-light);
+        }
+
+        .modal-body {
+            padding: var(--space-md);
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: var(--space-md);
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-sm);
+            border-top: 1px solid var(--color-surface-light);
+        }
+
+        .asset-select {
+            width: 100%;
+            padding: var(--space-sm);
+            background: var(--color-surface-light);
+            color: var(--color-text);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-md);
+        }
+
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: var(--space-sm);
+        }
+
+        .asset-card {
+            background: var(--color-surface-light);
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            /* Efeito de clique removido */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .asset-card:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .asset-thumbnail {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .asset-label {
+            padding: var(--space-xs);
+            font-size: 0.8rem;
+            text-align: center;
+            word-break: break-word;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: scale(0.95);
             }
 
             to {
                 opacity: 1;
-                transform: scale(1);
             }
         }
 
-        /* Itens na lista de assets */
-        #assetsUl li {
-            padding: 8px;
-            margin: 3px;
-            border-bottom: 1px solid #ccc;
-            background: #ccc;
-            border-radius: 5px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            gap: 10px;
-        }
-
-        #assetTypeSelect {
-            border: 1px solid #ccc;
-            height: 30px;
-        }
-
-        #closeModalBtn {
-            width: 100%;
-            border: 1px solid #ccc;
-            height: 30px;
-        }
-
-        #assetsUl li:hover {
-            background: #f0f0f0;
-        }
-
-        /* Layout para Desktop */
-        @media (min-width: 768px) {
+        @media (max-width: 768px) {
             body {
-                display: flex;
-                flex-direction: row;
-                height: 100vh;
-                overflow: hidden;
-                padding: 0;
-                align-items: center;
-                justify-content: space-between;
+                grid-template-areas:
+                    "header"
+                    "preview"
+                    "editor";
+                grid-template-columns: 1fr;
+                grid-template-rows: 50px 1fr 300px;
             }
 
-            #appBar {
-                display: none;
-            }
-
-            .drawer {
-                position: relative;
-                top: 0;
-                right: 0;
-                width: 300px;
-                height: 100%;
-                box-shadow: none;
-                padding: 0;
-                flex-shrink: 0;
-            }
-
-            .close-drawer {
-                display: none;
-            }
-
-            #previewArea {
-                flex: 1;
-                margin: 20px;
-                max-width: 800px;
-                align-self: center;
-            }
-
-            #sceneList {
-                background: white;
-                width: 300px;
-                height: 100vh;
-                margin: 0;
-                overflow-y: auto;
-                flex-shrink: 0;
+            .editor-panel {
+                border-left: none;
+                border-top: 1px solid var(--color-surface-light);
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- App Bar (mobile) -->
-    <div id="appBar">
-        <button id="drawerToggle" aria-label="Abrir Armazenamento">&#9776;</button>
-        <h1 style="margin-left: 10px; font-size: 18px;">Editor</h1>
+    <header class="app-header">
+        <h1 class="app-title">Editor de Visual Novel</h1>
+        <button id="drawerToggle" class="btn-icon" aria-label="Abrir Armazenamento">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 12h18M3 6h18M3 18h18"></path>
+            </svg>
+        </button>
+    </header>
+
+    <div class="preview-container">
+        <div id="previewArea" class="novel-preview">
+            <div id="bgLayer" class="bg-layer"></div>
+            <div id="characterArea" class="char-layer"></div>
+            <div id="dialogueBox" class="dialogue-box">
+                <div id="characterName" class="character-name"></div>
+                <div id="dialogueText" class="dialogue-text"></div>
+            </div>
+            <div id="choicesContainer" class="choices-container"></div>
+            <audio id="bgMusic" loop></audio>
+        </div>
     </div>
-    <!-- Drawer com iframe -->
+
+    <aside class="editor-panel">
+        <ul id="scenesUl" class="scene-list"></ul>
+        <button id="addSceneBtn" class="btn-floating" aria-label="Adicionar cena">+</button>
+    </aside>
+
     <div id="drawer" class="drawer">
+        <div class="drawer-header">
+            <h2>Armazenamento</h2>
+            <button id="closeDrawer" class="btn-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 6L6 18M6 6l12 12"></path>
+                </svg>
+            </button>
+        </div>
         <div class="drawer-content">
-            <button id="closeDrawer" class="close-drawer">Fechar</button>
             <iframe id="storageIframe" src="" frameborder="0" style="width:100%; height:100%;"></iframe>
         </div>
     </div>
-    <!-- Preview da Visual Novel -->
-    <div id="previewArea">
-        <div id="bgLayer"></div>
-        <div id="characterArea"></div>
-        <div id="dialogueBox">
-            <div class="characterName"></div>
-            <div class="dialogueText"></div>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Adicionar Asset</h3>
+            </div>
+            <div class="modal-body">
+                <select id="assetTypeSelect" class="asset-select">
+                    <option value="backgrounds">Background</option>
+                    <option value="characters">Character</option>
+                    <option value="musics">Music</option>
+                    <option value="variables">Variable</option>
+                    <option value="dialogues">Dialogue</option>
+                    <option value="choices">Choice</option>
+                </select>
+                <div id="assetsUl" class="asset-grid"></div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeModalBtn" class="btn">Fechar</button>
+            </div>
         </div>
-        <div id="choicesContainer"></div>
-        <audio id="bgMusic" autoplay loop></audio>
     </div>
-    <!-- Lista de Scenes -->
-    <div id="sceneList">
-        <button id="addSceneBtn">+</button>
-        <ul id="scenesUl"></ul>
-    </div>
-    <!-- Modal para adicionar assets -->
-    <div id="modal">
-        <div id="modalContent">
-            <h3>Adicionar Asset à Cena</h3>
-            <label for="assetTypeSelect">Tipo de Asset:</label>
-            <select id="assetTypeSelect">
-                <option value="backgrounds">Background</option>
-                <option value="characters">Character</option>
-                <option value="musics">Music</option>
-                <option value="variables">Variable</option>
-                <option value="dialogues">Dialogue</option>
-                <option value="choices">Choice</option>
-            </select>
-            <ul id="assetsUl"></ul>
 
-            <button id="closeModalBtn">Fechar</button>
-        </div </div>
-        <script>
-            (function() {
-                const targetVersion = 3;
-                const stores = ['backgrounds', 'variables', 'characters', 'musics', 'scenes'];
+    <script>
+        (() => {
+            // Constantes e estados
+            const DB_NAME = 'ArmazenamentoDB';
+            const DB_VERSION = 3;
+            const STORES = ['backgrounds', 'variables', 'characters', 'musics', 'scenes'];
 
-                // Cria as _object stores_ necessárias
-                function createStores(db) {
-                    stores.forEach(store => {
-                        if (!db.objectStoreNames.contains(store)) {
-                            db.createObjectStore(store, {
-                                keyPath: (store === 'scenes' ? 'id' : 'key'),
-                                autoIncrement: (store === 'scenes')
-                            });
-                        }
-                    });
-                }
+            // Estado da aplicação
+            const state = {
+                db: null,
+                currentScene: null,
+                scenesArray: [],
+                projectId: (() => {
+                    const sp = sessionStorage.getItem("selectedProject");
+                    return sp ? JSON.parse(sp).id : new URLSearchParams(location.search).get("id");
+                })()
+            };
 
-                // Abre o IndexedDB com fallback
-                function openDatabase() {
+            // Funções do banco de dados
+            const db = {
+                open() {
                     return new Promise((resolve, reject) => {
-                        if (indexedDB.databases) {
-                            indexedDB.databases().then(dbs => {
-                                const dbInfo = dbs.find(db => db.name === 'ArmazenamentoDB');
-                                const version = dbInfo && dbInfo.version && dbInfo.version >= targetVersion ? dbInfo.version : targetVersion;
-                                const req = indexedDB.open('ArmazenamentoDB', version);
-                                req.onupgradeneeded = e => createStores(e.target.result);
-                                req.onsuccess = e => resolve(e.target.result);
-                                req.onerror = e => reject(e.target.error);
-                            }).catch(() => {
-                                const req = indexedDB.open('ArmazenamentoDB', targetVersion);
-                                req.onupgradeneeded = e => createStores(e.target.result);
-                                req.onsuccess = e => resolve(e.target.result);
-                                req.onerror = e => reject(e.target.error);
+                        const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                        request.onupgradeneeded = e => {
+                            const db = e.target.result;
+                            STORES.forEach(store => {
+                                if (!db.objectStoreNames.contains(store)) {
+                                    db.createObjectStore(store, {
+                                        keyPath: (store === 'scenes' ? 'id' : 'key'),
+                                        autoIncrement: (store === 'scenes')
+                                    });
+                                }
                             });
-                        } else {
-                            const req = indexedDB.open('ArmazenamentoDB', targetVersion);
-                            req.onupgradeneeded = e => createStores(e.target.result);
-                            req.onsuccess = e => resolve(e.target.result);
-                            req.onerror = e => reject(e.target.error);
-                        }
+                        };
+
+                        request.onsuccess = e => {
+                            state.db = e.target.result;
+                            resolve(state.db);
+                        };
+
+                        request.onerror = e => reject(e.target.error);
+                    });
+                },
+
+                save(storeName, item) {
+                    return new Promise((resolve, reject) => {
+                        const tx = state.db.transaction(storeName, 'readwrite');
+                        const store = tx.objectStore(storeName);
+                        const request = store.put(item);
+
+                        request.onsuccess = () => resolve();
+                        request.onerror = e => reject(e.target.error);
+                    });
+                },
+
+                delete(storeName, key) {
+                    return new Promise((resolve, reject) => {
+                        const tx = state.db.transaction(storeName, 'readwrite');
+                        const store = tx.objectStore(storeName);
+                        const request = store.delete(key);
+
+                        request.onsuccess = () => resolve();
+                        request.onerror = e => reject(e.target.error);
+                    });
+                },
+
+                getAll(storeName) {
+                    return new Promise((resolve, reject) => {
+                        const tx = state.db.transaction(storeName, 'readonly');
+                        const store = tx.objectStore(storeName);
+                        const request = store.getAll();
+
+                        request.onsuccess = () => resolve(request.result);
+                        request.onerror = e => reject(e.target.error);
                     });
                 }
+            };
 
-                function saveItem(storeName, item) {
-                    return openDatabase().then(db => new Promise((resolve, reject) => {
-                        const tx = db.transaction(storeName, 'readwrite');
-                        const store = tx.objectStore(storeName);
-                        const req = store.put(item);
-                        req.onsuccess = () => resolve();
-                        req.onerror = e => reject(e.target.error);
-                    }));
-                }
+            // Utilitários
+            const $ = id => document.getElementById(id);
 
-                function removeItem(storeName, key) {
-                    return openDatabase().then(db => new Promise((resolve, reject) => {
-                        const tx = db.transaction(storeName, 'readwrite');
-                        const store = tx.objectStore(storeName);
-                        const req = store.delete(key);
-                        req.onsuccess = () => resolve();
-                        req.onerror = e => reject(e.target.error);
-                    }));
-                }
+            const parseVariables = (text, variables = []) => {
+                if (!text) return "";
+                return text.replace(/{([^}]+)}/g, (m, key) => {
+                    const v = variables.find(v => v.key === key);
+                    return v ? v.value : m;
+                });
+            };
 
-                function loadAllItems(storeName) {
-                    return openDatabase().then(db => new Promise((resolve, reject) => {
-                        const tx = db.transaction(storeName, 'readonly');
-                        const store = tx.objectStore(storeName);
-                        const req = store.getAll();
-                        req.onsuccess = () => resolve(req.result);
-                        req.onerror = e => reject(e.target.error);
-                    }));
-                }
-
-                function getEl(id) {
-                    return document.getElementById(id);
-                }
-
-                function safeAddEvent(id, event, handler) {
-                    const el = getEl(id);
-                    if (el) el.addEventListener(event, handler);
-                }
-
-                // Substituição de variáveis com a sintaxe {chave}
-                function parseVariables(text, variables) {
-                    return text ? text.replace(/{([^}]+)}/g, (m, key) => {
-                        const v = variables.find(v => v.key === key);
-                        return v ? v.value : m;
-                    }) : "";
-                }
-                const parseDialogue = parseVariables;
-
-                let currentScene = null;
-                let scenesArray = [];
-                const currentProjectId = (function() {
-                    let sp = sessionStorage.getItem("selectedProject");
-                    sp = sp ? JSON.parse(sp) : null;
-                    return sp ? sp.id : (new URLSearchParams(window.location.search)).get("id");
-                })();
-
-                function loadScenes() {
-                    loadAllItems('scenes').then(scenes => {
-                        scenes = scenes.filter(scene => scene.projectId === currentProjectId);
-                        scenesArray = scenes;
-                        renderSceneList(scenes);
-                        if (!currentScene && scenes.length) {
-                            currentScene = scenes[0];
-                            renderPreview(currentScene);
+            // Funções de UI
+            const ui = {
+                createEl(tag, attrs = {}, children = []) {
+                    const el = document.createElement(tag);
+                    Object.entries(attrs).forEach(([key, value]) => {
+                        if (key === 'events') {
+                            Object.entries(value).forEach(([event, handler]) => {
+                                el.addEventListener(event, handler);
+                            });
+                        } else if (key === 'style' && typeof value === 'object') {
+                            Object.assign(el.style, value);
+                        } else {
+                            el[key] = value;
                         }
-                    }).catch(console.error);
-                }
+                    });
 
-                function renderSceneList(scenes) {
-                    const ul = getEl('scenesUl');
+                    children.forEach(child => {
+                        if (typeof child === 'string') {
+                            el.appendChild(document.createTextNode(child));
+                        } else {
+                            el.appendChild(child);
+                        }
+                    });
+
+                    return el;
+                },
+
+                renderSceneList(scenes) {
+                    const ul = $('scenesUl');
                     ul.innerHTML = '';
+
                     scenes.forEach(scene => {
-                        const li = document.createElement('li');
-                        li.className = 'sceneItem';
-                        const input = document.createElement('input');
-                        input.type = 'text';
-                        input.value = scene.sceneKey || '';
-                        input.placeholder = 'Nome da Cena';
-                        input.addEventListener('change', function() {
-                            scene.sceneKey = this.value;
-                            saveItem('scenes', scene).then(loadScenes);
-                        });
-                        li.appendChild(input);
-                        const addAssetBtn = document.createElement('button');
-                        addAssetBtn.textContent = '+';
-                        addAssetBtn.addEventListener('click', e => {
-                            e.stopPropagation();
-                            currentScene = scene;
-                            showAssetModal();
-                        });
-                        li.appendChild(addAssetBtn);
-                        const expandBtn = document.createElement('button');
-                        expandBtn.textContent = 'Expandir';
-                        expandBtn.addEventListener('click', e => {
-                            e.stopPropagation();
-                            const detailsDiv = li.querySelector('.assetDetails');
-                            detailsDiv.style.display = (detailsDiv.style.display === 'none' || detailsDiv.style.display === '') ? 'block' : 'none';
-                            if (detailsDiv.style.display === 'block') renderAssetDetails(detailsDiv, scene);
-                        });
-                        li.appendChild(expandBtn);
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.textContent = 'Delete';
-                        deleteBtn.addEventListener('click', e => {
-                            e.stopPropagation();
-                            removeItem('scenes', scene.id).then(loadScenes);
-                        });
-                        li.appendChild(deleteBtn);
-                        const detailsDiv = document.createElement('div');
-                        detailsDiv.className = 'assetDetails';
-                        li.appendChild(detailsDiv);
-                        li.addEventListener('click', () => {
-                            currentScene = scene;
-                            renderPreview(scene);
-                        });
+                        const li = ui.createEl('li', {
+                            className: 'scene-item',
+                            events: {
+                                click: () => {
+                                    state.currentScene = scene;
+                                    ui.renderPreview(scene);
+                                }
+                            }
+                        }, [
+                            ui.createEl('div', {
+                                className: 'scene-header'
+                            }, [
+                                ui.createEl('input', {
+                                    className: 'scene-name',
+                                    type: 'text',
+                                    value: scene.sceneKey || '',
+                                    placeholder: 'Nome da cena',
+                                    events: {
+                                        change: function(e) {
+                                            e.stopPropagation();
+                                            scene.sceneKey = this.value;
+                                            db.save('scenes', scene).then(app.loadScenes);
+                                        }
+                                    }
+                                }),
+                                ui.createEl('button', {
+                                    className: 'btn-icon',
+                                    title: 'Adicionar asset',
+                                    events: {
+                                        click: e => {
+                                            e.stopPropagation();
+                                            state.currentScene = scene;
+                                            ui.showAssetModal();
+                                        }
+                                    }
+                                }, [
+                                    ui.createEl('svg', {
+                                        width: 18,
+                                        height: 18,
+                                        viewBox: '0 0 24 24',
+                                        innerHTML: '<path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2"/>'
+                                    })
+                                ]),
+                                ui.createEl('button', {
+                                    className: 'btn-icon',
+                                    title: 'Expandir',
+                                    events: {
+                                        click: e => {
+                                            e.stopPropagation();
+                                            const details = li.querySelector('.asset-details');
+                                            const isHidden = details.style.display === 'none' || !details.style.display;
+                                            details.style.display = isHidden ? 'block' : 'none';
+                                            if (isHidden) ui.renderAssetDetails(details, scene);
+                                        }
+                                    }
+                                }, [
+                                    ui.createEl('svg', {
+                                        width: 18,
+                                        height: 18,
+                                        viewBox: '0 0 24 24',
+                                        innerHTML: '<path d="M19 9l-7 7-7-7" stroke="currentColor" stroke-width="2" fill="none"/>'
+                                    })
+                                ]),
+                                ui.createEl('button', {
+                                    className: 'btn-icon',
+                                    title: 'Excluir cena',
+                                    events: {
+                                        click: e => {
+                                            e.stopPropagation();
+                                            if (confirm('Tem certeza que deseja excluir esta cena?')) {
+                                                db.delete('scenes', scene.id).then(app.loadScenes);
+                                            }
+                                        }
+                                    }
+                                }, [
+                                    ui.createEl('svg', {
+                                        width: 18,
+                                        height: 18,
+                                        viewBox: '0 0 24 24',
+                                        innerHTML: '<path d="M19 7l-3 13H8L5 7M10 11V17M14 11V17M4 7h16M9 7V4h6v3" stroke="currentColor" stroke-width="2" fill="none"/>'
+                                    })
+                                ])
+                            ]),
+                            ui.createEl('div', {
+                                className: 'asset-details'
+                            })
+                        ]);
+
                         ul.appendChild(li);
                     });
-                }
+                },
 
-                function renderAssetDetails(detailsDiv, scene) {
-                    detailsDiv.innerHTML = '';
+                renderAssetDetails(container, scene) {
+                    container.innerHTML = '';
                     const assetTypes = ['backgrounds', 'characters', 'musics', 'variables', 'dialogues', 'choices'];
+
                     assetTypes.forEach(type => {
-                        const header = document.createElement('h4');
-                        header.textContent = type.charAt(0).toUpperCase() + type.slice(1);
-                        detailsDiv.appendChild(header);
-                        const list = document.createElement('ul');
+                        const section = ui.createEl('div', {
+                            className: 'asset-section'
+                        }, [
+                            ui.createEl('h3', {
+                                className: 'asset-title'
+                            }, [
+                                type.charAt(0).toUpperCase() + type.slice(1)
+                            ])
+                        ]);
+
+                        const assetList = ui.createEl('ul', {
+                            className: 'asset-list'
+                        });
+
                         if (scene[type] && scene[type].length) {
                             scene[type].forEach((item, index) => {
-                                const li = document.createElement('li');
-                                let allowedProps = [];
+                                const assetItem = ui.createEl('li', {
+                                    className: 'asset-item'
+                                });
+
+                                // Propriedades permitidas por tipo de asset
+                                let props = [];
                                 switch (type) {
-                                    case "backgrounds":
-                                        allowedProps = ["key", "archive", "opacity"];
+                                    case 'backgrounds':
+                                        props = ['key', 'archive', 'opacity', 'zIndex'];
                                         break;
-                                    case "characters":
-                                        allowedProps = ["key", "archive", "posX", "posY", "scale"];
+                                    case 'characters':
+                                        props = ['key', 'archive', 'posX', 'posY', 'scale', 'zIndex'];
                                         break;
-                                    case "variables":
-                                        allowedProps = ["key"];
-                                        if (item.type !== "arquive") allowedProps.push("value");
+                                    case 'variables':
+                                        props = ['key', 'value'];
                                         break;
-                                    case "musics":
-                                        allowedProps = ["key", "archive", "loop", "volume"];
+                                    case 'musics':
+                                        props = ['key', 'archive', 'loop', 'volume', 'zIndex'];
                                         break;
-                                    default:
-                                        allowedProps = Object.keys(item).filter(prop => prop !== "id" && prop !== "projectId");
+                                    case 'dialogues':
+                                        props = ['person', 'text'];
+                                        break;
+                                    case 'choices':
+                                        props = ['name', 'target'];
                                         break;
                                 }
-                                if (type !== "variables" && !allowedProps.includes("zIndex")) allowedProps.push("zIndex");
-                                allowedProps.forEach(prop => {
-                                    const input = document.createElement('input');
-                                    input.type = 'text';
-                                    input.value = item[prop] !== undefined ? item[prop] : '';
-                                    input.placeholder = prop + ' (use {chave} para variáveis)';
-                                    input.addEventListener('change', function() {
-                                        item[prop] = this.value;
-                                        saveItem('scenes', scene).then(loadScenes);
-                                    });
-                                    li.appendChild(input);
+
+                                props.forEach(prop => {
+                                    assetItem.appendChild(
+                                        ui.createEl('input', {
+                                            className: 'asset-field',
+                                            type: 'text',
+                                            value: item[prop] !== undefined ? item[prop] : '',
+                                            placeholder: prop,
+                                            events: {
+                                                change: function() {
+                                                    item[prop] = this.value;
+                                                    db.save('scenes', scene).then(() => {
+                                                        app.loadScenes();
+                                                        if (state.currentScene && state.currentScene.id === scene.id) {
+                                                            ui.renderPreview(scene);
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        })
+                                    );
                                 });
-                                const delBtn = document.createElement('button');
-                                delBtn.textContent = 'X';
-                                delBtn.addEventListener('click', function(e) {
-                                    e.stopPropagation();
-                                    scene[type].splice(index, 1);
-                                    saveItem('scenes', scene).then(loadScenes);
-                                });
-                                li.appendChild(delBtn);
-                                list.appendChild(li);
+
+                                assetItem.appendChild(
+                                    ui.createEl('button', {
+                                        className: 'btn-icon',
+                                        title: 'Remover',
+                                        events: {
+                                            click: () => {
+                                                scene[type].splice(index, 1);
+                                                db.save('scenes', scene).then(() => {
+                                                    ui.renderAssetDetails(container, scene);
+                                                    if (state.currentScene && state.currentScene.id === scene.id) {
+                                                        ui.renderPreview(scene);
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }, [
+                                        ui.createEl('svg', {
+                                            width: 16,
+                                            height: 16,
+                                            viewBox: '0 0 24 24',
+                                            innerHTML: '<path d="M6 6l12 12M6 18L18 6" stroke="currentColor" stroke-width="2"/>'
+                                        })
+                                    ])
+                                );
+
+                                assetList.appendChild(assetItem);
                             });
                         } else {
-                            const li = document.createElement('li');
-                            li.textContent = 'Nenhum';
-                            list.appendChild(li);
+                            assetList.appendChild(
+                                ui.createEl('li', {
+                                    className: 'asset-item',
+                                    style: {
+                                        justifyContent: 'center',
+                                        color: 'var(--color-text-secondary)'
+                                    }
+                                }, ['Nenhum item'])
+                            );
                         }
-                        detailsDiv.appendChild(list);
-                    });
-                }
 
-                function renderPreview(scene) {
-                    const bgLayer = getEl('bgLayer');
+                        section.appendChild(assetList);
+                        container.appendChild(section);
+                    });
+                },
+
+                renderPreview(scene) {
+                    if (!scene) return;
+
+                    // Background
+                    const bgLayer = $('bgLayer');
                     if (scene.backgrounds && scene.backgrounds.length) {
                         const bg = scene.backgrounds[0];
-                        const archiveUrl = typeof bg.archive === "string" ? parseVariables(bg.archive, scene.variables) : bg.archive;
-                        bgLayer.style.backgroundImage = `url(${archiveUrl})`;
+                        const bgUrl = typeof bg.archive === "string" ? parseVariables(bg.archive, scene.variables) : bg.archive;
+                        bgLayer.style.backgroundImage = `url(${bgUrl})`;
                         bgLayer.style.opacity = bg.opacity || 1;
-                        bgLayer.style.zIndex = bg.zIndex !== undefined ? bg.zIndex : 1;
+                        bgLayer.style.zIndex = bg.zIndex || 1;
                     } else {
                         bgLayer.style.backgroundImage = 'none';
                     }
-                    const characterArea = getEl('characterArea');
-                    characterArea.innerHTML = '';
+
+                    // Characters
+                    const charArea = $('characterArea');
+                    charArea.innerHTML = '';
                     if (scene.characters && scene.characters.length) {
                         scene.characters.forEach(char => {
                             if (char.archive) {
-                                const img = document.createElement('img');
-                                img.src = typeof char.archive === "string" ? parseVariables(char.archive, scene.variables) : char.archive;
-                                img.alt = char.key || "Personagem";
-                                const offsetX = char.posX !== undefined ? char.posX : 0;
-                                const offsetY = char.posY !== undefined ? char.posY : 0;
-                                img.style.left = `calc(50% + ${offsetX}px)`;
-                                img.style.top = `calc(50% - ${offsetY}px)`;
-                                img.style.transform = `translate(-50%, -50%) scale(${char.scale || 1})`;
-                                img.style.zIndex = char.zIndex !== undefined ? char.zIndex : 5;
-                                characterArea.appendChild(img);
+                                const charUrl = typeof char.archive === "string" ?
+                                    parseVariables(char.archive, scene.variables) : char.archive;
+
+                                const img = ui.createEl('img', {
+                                    src: charUrl,
+                                    alt: char.key || "Character",
+                                    style: {
+                                        left: `calc(50% + ${char.posX || 0}px)`,
+                                        top: `calc(50% - ${char.posY || 0}px)`,
+                                        transform: `translate(-50%, -50%) scale(${char.scale || 1})`,
+                                        zIndex: char.zIndex || 5
+                                    }
+                                });
+
+                                charArea.appendChild(img);
                             }
                         });
                     }
-                    const dialogueBox = getEl('dialogueBox');
-                    let dialogueText = "",
-                        dialogueName = "",
-                        found = false;
+
+                    // Dialogue
+                    const dialogueBox = $('dialogueBox');
+                    const charName = $('characterName');
+                    const dialogueText = $('dialogueText');
+
+                    let foundDialogue = false;
+                    let dialogueContent = "";
+                    let dialogueSpeaker = "";
+
                     if (scene.characters && scene.characters.length) {
                         for (let char of scene.characters) {
                             if (char.dialogueText) {
-                                dialogueName = char.person || "Personagem";
-                                dialogueText = parseDialogue(char.dialogueText, scene.variables);
-                                found = true;
+                                dialogueSpeaker = char.person || char.key || "Character";
+                                dialogueContent = parseVariables(char.dialogueText, scene.variables);
+                                foundDialogue = true;
                                 break;
                             }
                         }
                     }
-                    if (!found && scene.dialogues && scene.dialogues.length) {
-                        dialogueName = scene.dialogues[0].person || "Narrador";
-                        dialogueText = parseDialogue(scene.dialogues[0].text, scene.variables);
-                        found = true;
-                    }
-                    dialogueBox.style.display = found ? 'block' : 'none';
-                    if (found) {
-                        dialogueBox.querySelector('.characterName').innerText = dialogueName;
-                        dialogueBox.querySelector('.dialogueText').innerText = dialogueText;
+
+                    if (!foundDialogue && scene.dialogues && scene.dialogues.length) {
+                        dialogueSpeaker = scene.dialogues[0].person || "Narrator";
+                        dialogueContent = parseVariables(scene.dialogues[0].text, scene.variables);
+                        foundDialogue = true;
                     }
 
-                    const choicesContainer = getEl('choicesContainer');
+                    dialogueBox.style.display = foundDialogue ? 'block' : 'none';
+                    if (foundDialogue) {
+                        charName.textContent = dialogueSpeaker;
+                        dialogueText.textContent = dialogueContent;
+                    }
+
+                    // Choices
+                    const choicesContainer = $('choicesContainer');
                     choicesContainer.innerHTML = '';
+
                     if (scene.choices && scene.choices.length) {
-                        choicesContainer.style.display = 'flex';
                         scene.choices.forEach(choice => {
-                            const btn = document.createElement('button');
-                            btn.textContent = choice.name;
-                            btn.addEventListener('click', function(e) {
-                                e.stopPropagation();
-                                const targetScene = scenesArray.find(s => s.sceneKey === choice.target);
-                                if (targetScene) {
-                                    currentScene = targetScene;
-                                    renderPreview(targetScene);
-                                } else {
-                                    alert("Cena destino não encontrada: " + choice.target);
+                            const btn = ui.createEl('button', {
+                                className: 'choice-btn',
+                                textContent: choice.name,
+                                events: {
+                                    click: e => {
+                                        e.stopPropagation();
+                                        const targetScene = state.scenesArray.find(s => s.sceneKey === choice.target);
+                                        if (targetScene) {
+                                            state.currentScene = targetScene;
+                                            ui.renderPreview(targetScene);
+                                        } else {
+                                            alert(`Cena não encontrada: ${choice.target}`);
+                                        }
+                                    }
                                 }
                             });
+
                             choicesContainer.appendChild(btn);
                         });
-                    } else {
-                        choicesContainer.style.display = 'none';
                     }
-                    const bgMusic = getEl('bgMusic');
+
+                    // Background Music
+                    const bgMusic = $('bgMusic');
+
                     if (scene.musics && scene.musics.length) {
                         const music = scene.musics[0];
-                        const musicArchive = typeof music.archive === "string" ? parseVariables(music.archive, scene.variables) : music.archive;
-                        bgMusic.src = musicArchive;
-                        bgMusic.loop = music.loop || false;
-                        bgMusic.volume = (music.volume || 100) / 100;
-                        bgMusic.play();
+                        const musicUrl = typeof music.archive === "string" ?
+                            parseVariables(music.archive, scene.variables) : music.archive;
+
+                        bgMusic.src = musicUrl;
+                        bgMusic.loop = music.loop === 'true' || music.loop === true;
+                        bgMusic.volume = (parseInt(music.volume) || 100) / 100;
+                        bgMusic.play().catch(() => console.log('Auto-play bloqueado pelo navegador'));
                     } else {
                         bgMusic.pause();
                         bgMusic.src = '';
                     }
-                }
+                },
 
-                safeAddEvent('previewArea', 'click', function() {
-                    if (currentScene && currentScene.choices && currentScene.choices.length) return;
-                    if (scenesArray.length && currentScene) {
-                        const currentIndex = scenesArray.findIndex(s => s.id === currentScene.id);
-                        const nextIndex = (currentIndex + 1) % scenesArray.length;
-                        currentScene = scenesArray[nextIndex];
-                        renderPreview(currentScene);
-                    }
-                });
+                showAssetModal() {
+                    $('modal').style.display = 'flex';
+                    $('assetTypeSelect').value = 'backgrounds';
+                    ui.loadAssetList('backgrounds');
+                },
 
-                function showAssetModal() {
-                    getEl('modal').style.display = 'flex';
-                    getEl('assetTypeSelect').value = 'backgrounds';
-                    loadAssets(getEl('assetTypeSelect').value);
-                }
+                loadAssetList(assetType) {
+                    const assetContainer = $('assetsUl');
+                    assetContainer.innerHTML = '';
 
-                safeAddEvent('assetTypeSelect', 'change', function() {
-                    loadAssets(this.value);
-                });
-
-                function loadAssets(storeName) {
-                    if (storeName === 'dialogues' || storeName === 'choices') {
-                        const assetData = storeName === 'dialogues' ? {
-                            key: "Narrador",
-                            person: "Nome do personagem",
+                    // Para dialogues e choices, criamos diretamente em vez de carregar do banco
+                    if (assetType === 'dialogues' || assetType === 'choices') {
+                        const defaultAsset = assetType === 'dialogues' ? {
+                            person: "Personagem",
                             text: "Novo diálogo"
                         } : {
                             name: "Nova escolha",
                             target: ""
                         };
-                        if (!currentScene[storeName]) currentScene[storeName] = [];
-                        currentScene[storeName].push(assetData);
-                        saveItem('scenes', currentScene).then(() => {
-                            loadScenes();
-                            renderPreview(currentScene);
+
+                        if (!state.currentScene[assetType]) {
+                            state.currentScene[assetType] = [];
+                        }
+
+                        state.currentScene[assetType].push(defaultAsset);
+
+                        db.save('scenes', state.currentScene).then(() => {
+                            app.loadScenes();
+                            ui.closeModal();
                         });
-                        closeModal();
+
                         return;
                     }
-                    const assetsUl = getEl('assetsUl');
-                    assetsUl.innerHTML = '';
-                    loadAllItems(storeName).then(assets => {
-                        assets = assets.filter(asset => asset.projectId === currentProjectId);
-                        if (!assets.length) {
-                            assetsUl.innerHTML = '<li>Nenhum item cadastrado.</li>';
-                        } else {
-                            assets.forEach(asset => {
-                                const li = document.createElement('li');
-                                li.textContent = asset.key;
-                                const thumbSrc = (storeName === 'backgrounds' ||
-                                        (storeName === 'characters' && asset.archive) ||
-                                        (storeName === 'variables' && asset.type === 'arquive' && asset.value.startsWith("data:image"))) ?
-                                    (asset.archive || asset.value || (asset.images && asset.images[0])) : null;
-                                if (thumbSrc) {
-                                    const thumb = document.createElement('img');
-                                    thumb.src = thumbSrc;
-                                    thumb.style.width = '50px';
-                                    thumb.style.marginRight = '5px';
-                                    li.insertBefore(thumb, li.firstChild);
-                                }
-                                li.addEventListener('click', function() {
-                                    if (!currentScene[storeName]) currentScene[storeName] = [];
-                                    const commonData = {
-                                        key: asset.key,
-                                        value: asset.value
-                                    };
-                                    const assetData = storeName === 'backgrounds' ? {
-                                            ...commonData,
-                                            archive: asset.archive,
-                                            opacity: 1
-                                        } :
-                                        storeName === 'characters' ? {
-                                            ...commonData,
-                                            archive: asset.archive || (asset.images && asset.images[0])
-                                        } :
-                                        storeName === 'musics' ? {
-                                            ...commonData,
-                                            archive: asset.archive,
-                                            loop: false,
-                                            volume: 100
-                                        } : {
-                                            ...commonData,
-                                            archive: (asset.type === 'arquive' && asset.value && asset.value.startsWith("data:image")) ? asset.value : null
-                                        };
-                                    currentScene[storeName].push(assetData);
-                                    saveItem('scenes', currentScene).then(() => {
-                                        loadScenes();
-                                        renderPreview(currentScene);
-                                    });
-                                    closeModal();
-                                });
-                                assetsUl.appendChild(li);
-                            });
+
+                    // Carregar assets do banco
+                    db.getAll(assetType).then(assets => {
+                        const projectAssets = assets.filter(a => a.projectId === state.projectId);
+
+                        if (!projectAssets.length) {
+                            assetContainer.innerHTML = '<div style="text-align:center;padding:20px;color:var(--color-text-secondary)">Nenhum asset encontrado</div>';
+                            return;
                         }
-                    }).catch(e => console.error("Erro ao carregar " + storeName + ":", e));
+
+                        projectAssets.forEach(asset => {
+                            // Determinar a fonte da thumbnail
+                            let thumbnailSrc = null;
+
+                            if (assetType === 'backgrounds' || assetType === 'characters') {
+                                thumbnailSrc = asset.archive;
+                            } else if (assetType === 'variables' && asset.type === 'arquive') {
+                                thumbnailSrc = asset.value?.startsWith('data:image') ? asset.value : null;
+                            } else if (assetType === 'musics') {
+                                // Ícone de música
+                                thumbnailSrc = null;
+                            }
+
+                            // Criar card do asset
+                            const card = ui.createEl('div', {
+                                className: 'asset-card',
+                                events: {
+                                    click: () => {
+                                        // Adicionar asset à cena
+                                        if (!state.currentScene[assetType]) {
+                                            state.currentScene[assetType] = [];
+                                        }
+
+                                        let assetData = {};
+
+                                        switch (assetType) {
+                                            case 'backgrounds':
+                                                assetData = {
+                                                    key: asset.key,
+                                                    archive: asset.archive,
+                                                    opacity: 1,
+                                                    zIndex: 1
+                                                };
+                                                break;
+                                            case 'characters':
+                                                assetData = {
+                                                    key: asset.key,
+                                                    archive: asset.archive || (asset.images && asset.images[0]),
+                                                    posX: 0,
+                                                    posY: 0,
+                                                    scale: 1,
+                                                    zIndex: 5
+                                                };
+                                                break;
+                                            case 'musics':
+                                                assetData = {
+                                                    key: asset.key,
+                                                    archive: asset.archive,
+                                                    loop: true,
+                                                    volume: 100,
+                                                    zIndex: 1
+                                                };
+                                                break;
+                                            case 'variables':
+                                                assetData = {
+                                                    key: asset.key,
+                                                    value: asset.value,
+                                                    type: asset.type
+                                                };
+                                                break;
+                                        }
+
+                                        state.currentScene[assetType].push(assetData);
+
+                                        db.save('scenes', state.currentScene).then(() => {
+                                            app.loadScenes();
+                                            ui.renderPreview(state.currentScene);
+                                            ui.closeModal();
+                                        });
+                                    }
+                                }
+                            }, [
+                                thumbnailSrc ?
+                                ui.createEl('img', {
+                                    className: 'asset-thumbnail',
+                                    src: thumbnailSrc,
+                                    alt: asset.key
+                                }) :
+                                ui.createEl('div', {
+                                    className: 'asset-thumbnail',
+                                    innerHTML: assetType === 'musics' ?
+                                        '<svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" fill="none" style="margin:auto;display:block;margin-top:16px"><path d="M9 18V5l12-2v13M9 9l12-2M9 18a3 3 0 11-6 0 3 3 0 016 0zm12-5a3 3 0 11-6 0 3 3 0 016 0z"/></svg>' : '<svg viewBox="0 0 24 24" width="32" height="32" stroke="currentColor" fill="none" style="margin:auto;display:block;margin-top:16px"><path d="M12 4v16m-8-8h16"/></svg>'
+                                }),
+                                ui.createEl('div', {
+                                    className: 'asset-label'
+                                }, [asset.key])
+                            ]);
+
+                            assetContainer.appendChild(card);
+                        });
+                    });
+                },
+
+                closeModal() {
+                    $('modal').style.display = 'none';
+                },
+
+                toggleDrawer(show) {
+                    $('drawer').classList[show ? 'add' : 'remove']('open');
                 }
+            };
 
-                function closeModal() {
-                    getEl('modal').style.display = 'none';
+            // Lógica da aplicação
+            const app = {
+                init() {
+                    db.open().then(() => {
+                        this.setupEventListeners();
+                        this.loadScenes();
+
+                        // Configurar iframe de armazenamento
+                        $('storageIframe').src = "storage.html?id=" + encodeURIComponent(state.projectId);
+                    }).catch(console.error);
+                },
+
+                setupEventListeners() {
+                    // Controles do drawer
+                    $('drawerToggle').addEventListener('click', () => ui.toggleDrawer(true));
+                    $('closeDrawer').addEventListener('click', () => ui.toggleDrawer(false));
+
+                    // Controles do modal
+                    $('assetTypeSelect').addEventListener('change', function() {
+                        ui.loadAssetList(this.value);
+                    });
+
+                    $('closeModalBtn').addEventListener('click', ui.closeModal);
+                    $('modal').addEventListener('click', function(e) {
+                        if (e.target === this) ui.closeModal();
+                    });
+
+                    // Adicionar cena
+                    $('addSceneBtn').addEventListener('click', () => {
+                        const newScene = {
+                            projectId: state.projectId,
+                            sceneKey: 'Nova Cena',
+                            backgrounds: [],
+                            characters: [],
+                            musics: [],
+                            variables: [],
+                            dialogues: [],
+                            choices: []
+                        };
+
+                        db.save('scenes', newScene).then(app.loadScenes);
+                    });
+
+                    // Preview click (próxima cena)
+                    $('previewArea').addEventListener('click', function() {
+                        if (!state.currentScene ||
+                            (state.currentScene.choices && state.currentScene.choices.length) ||
+                            !state.scenesArray.length) {
+                            return;
+                        }
+
+                        const currentIndex = state.scenesArray.findIndex(s => s.id === state.currentScene.id);
+                        const nextIndex = (currentIndex + 1) % state.scenesArray.length;
+                        state.currentScene = state.scenesArray[nextIndex];
+                        ui.renderPreview(state.currentScene);
+                    });
+                },
+
+                loadScenes() {
+                    db.getAll('scenes').then(scenes => {
+                        const projectScenes = scenes.filter(s => s.projectId === state.projectId);
+                        state.scenesArray = projectScenes;
+
+                        ui.renderSceneList(projectScenes);
+
+                        if (projectScenes.length && (!state.currentScene || !projectScenes.find(s => s.id === state.currentScene.id))) {
+                            state.currentScene = projectScenes[0];
+                        }
+
+                        if (state.currentScene) {
+                            ui.renderPreview(state.currentScene);
+                        }
+                    }).catch(console.error);
                 }
+            };
 
-                safeAddEvent('closeModalBtn', 'click', closeModal);
-                safeAddEvent('modal', 'click', function(e) {
-                    if (e.target === this) closeModal();
-                });
-
-                safeAddEvent('addSceneBtn', 'click', function() {
-                    const newScene = {
-                        projectId: currentProjectId,
-                        sceneKey: 'Nova Cena',
-                        backgrounds: [],
-                        characters: [],
-                        musics: [],
-                        variables: [],
-                        dialogues: [],
-                        choices: []
-                    };
-                    saveItem('scenes', newScene).then(loadScenes);
-                });
-
-                document.addEventListener('DOMContentLoaded', function() {
-                    let selectedProject = sessionStorage.getItem("selectedProject");
-                    if (selectedProject) selectedProject = JSON.parse(selectedProject);
-                    const currentId = selectedProject ? selectedProject.id : (new URLSearchParams(window.location.search)).get("id");
-                    getEl('storageIframe').src = "storage.html?id=" + encodeURIComponent(currentId);
-
-                    safeAddEvent('drawerToggle', 'click', () => getEl('drawer').classList.toggle("open"));
-                    safeAddEvent('closeDrawer', 'click', () => getEl('drawer').classList.remove("open"));
-
-                    loadScenes();
-                });
-            })();
-        </script>
+            // Inicialização
+            window.addEventListener('DOMContentLoaded', () => app.init());
+        })();
+    </script>
 </body>
 
 </html>
