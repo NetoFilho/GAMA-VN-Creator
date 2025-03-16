@@ -19,7 +19,7 @@
             font-family: Arial, sans-serif;
             background: #f4f4f4;
             color: #fff;
-            padding-top: 30px;
+            padding-top: 10px;
         }
 
         #addSceneBtn {
@@ -142,18 +142,19 @@
             z-index: 2;
         }
 
-#choicesContainer {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    z-index: 4;
-}
+        #choicesContainer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            z-index: 4;
+        }
 
         #choicesContainer button,
         #sceneList button {
@@ -180,9 +181,16 @@
         #sceneList {
             width: 100%;
             max-width: 800px;
-            margin: 20px auto;
-            background: transparent;
+            background: white;
+        }
+
+        #sceneList Button {
+            font-size: 0.8rem;
             padding: 10px;
+            margin-left: 10px;
+            border-radius: 10px;
+            background: #ccc;
+            color: black;
         }
 
         .sceneItem {
@@ -324,6 +332,7 @@
             }
 
             #sceneList {
+                background: white;
                 width: 300px;
                 height: 100vh;
                 margin: 0;
@@ -373,7 +382,7 @@
                 <option value="characters">Character</option>
                 <option value="musics">Music</option>
                 <option value="variables">Variable</option>
-                <option value="dialogues">Dialogue (Narrador)</option>
+                <option value="dialogues">Dialogue</option>
                 <option value="choices">Choice</option>
             </select>
             <ul id="assetsUl"></ul>
@@ -638,7 +647,7 @@
                     if (scene.characters && scene.characters.length) {
                         for (let char of scene.characters) {
                             if (char.dialogueText) {
-                                dialogueName = char.key;
+                                dialogueName = char.person || "Personagem";
                                 dialogueText = parseDialogue(char.dialogueText, scene.variables);
                                 found = true;
                                 break;
@@ -646,7 +655,7 @@
                         }
                     }
                     if (!found && scene.dialogues && scene.dialogues.length) {
-                        dialogueName = "Narrador";
+                        dialogueName = scene.dialogues[0].person || "Narrador";
                         dialogueText = parseDialogue(scene.dialogues[0].text, scene.variables);
                         found = true;
                     }
@@ -655,6 +664,7 @@
                         dialogueBox.querySelector('.characterName').innerText = dialogueName;
                         dialogueBox.querySelector('.dialogueText').innerText = dialogueText;
                     }
+
                     const choicesContainer = getEl('choicesContainer');
                     choicesContainer.innerHTML = '';
                     if (scene.choices && scene.choices.length) {
@@ -715,6 +725,7 @@
                     if (storeName === 'dialogues' || storeName === 'choices') {
                         const assetData = storeName === 'dialogues' ? {
                             key: "Narrador",
+                            person: "Nome do personagem",
                             text: "Novo diálogo"
                         } : {
                             name: "Nova escolha",
